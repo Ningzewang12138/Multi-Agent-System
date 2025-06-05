@@ -1,0 +1,4 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/Microsoft Visual Studio/2022/Preview/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake
+C:/Program Files/Microsoft Visual Studio/2022/Preview/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FetchContent.cmake
+D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/windows/CMakeLists.txt

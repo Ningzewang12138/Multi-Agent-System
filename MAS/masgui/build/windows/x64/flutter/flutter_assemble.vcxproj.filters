@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\ed39d8ed1bab4f64c90754ec594df4ca\flutter_windows.dll.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\d4e1ff8ca55c060eff0fba9557fd7735\flutter_assemble.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\flutter\CMakeFiles\flutter_assemble" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{B83909BC-080A-3738-AF87-B61B03C4697B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

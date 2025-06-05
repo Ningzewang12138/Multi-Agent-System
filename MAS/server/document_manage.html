@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Manager</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.danger {
+            background-color: #dc3545;
+        }
+        button.danger:hover {
+            background-color: #c82333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .document-row:hover {
+            background-color: #f5f5f5;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .preview-section {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Document Manager</h1>
+        
+        <div class="control-section">
+            <label>Knowledge Base:</label>
+            <select id="kbSelect">
+                <option value="">-- Select KB --</option>
+            </select>
+            <button onclick="refreshKBList()">Refresh</button>
+            <button onclick="loadDocuments()">Load Documents</button>
+            <button onclick="loadStats()">Show Stats</button>
+        </div>
+        
+        <div id="stats" class="stats-grid"></div>
+        
+        <div class="filter-section">
+            <h3>Delete Options</h3>
+            
+            <div>
+                <label>Delete by age:</label>
+                <input type="number" id="olderThanDays" placeholder="Days" style="width: 80px;">
+                <button onclick="deleteOldDocuments()">Delete Old Documents</button>
+            </div>
+            
+            <div>
+                <label>Delete by pattern:</label>
+                <input type="text" id="sourcePattern" placeholder="Source pattern">
+                <button onclick="deleteByPattern()">Delete Matching</button>
+            </div>
+            
+            <div>
+                <label>Search and delete:</label>
+                <input type="text" id="searchQuery" placeholder="Search query">
+                <button onclick="searchAndDelete(false)">Preview</button>
+                <button onclick="searchAndDelete(true)" class="danger">Delete</button>
+            </div>
+            
+            <div>
+                <button onclick="cleanupKB()" class="danger">⚠️ Delete All Documents</button>
+            </div>
+        </div>
+        
+        <div id="preview" class="preview-section" style="display: none;"></div>
+        
+        <div id="documents">
+            <h3>Documents</h3>
+            <table id="documentsTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                        <th>ID</th>
+                        <th>Content Preview</th>
+                        <th>Source</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="documentsBody">
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 10px;">
+                <button onclick="deleteSelected()" class="danger">Delete Selected</button>
+            </div>
+        </div>
+        
+        <div id="status" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        let currentKB = null;
+        let documents = [];
+        
+        async function refreshKBList() {
+            try {
+                const response = await fetch('http://localhost:8000/api/knowledge/');
+                const kbs = await response.json();
+                
+                const select = document.getElementById('kbSelect');
+                select.innerHTML = '<option value="">-- Select KB --</option>';
+                
+                kbs.forEach(kb => {
+                    const option = document.createElement('option');
+                    option.value = kb.id;
+                    option.textContent = `${kb.name} (${kb.document_count} docs)`;
+                    select.appendChild(option);
+                });
+                
+                showStatus('Knowledge bases refreshed', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadDocuments() {
+            currentKB = document.getElementById('kbSelect').value;
+            if (!currentKB) {
+                showStatus('Please select a knowledge base', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents?limit=1000`);
+                const data = await response.json();
+                
+                documents = data.documents;
+                displayDocuments(documents);
+                showStatus(`Loaded ${documents.length} documents`, 'success');
+            } catch (error) {
+                showStatus('Error loading documents: ' + error.message, 'error');
+            }
+        }
+        
+        function displayDocuments(docs) {
+            const tbody = document.getElementById('documentsBody');
+            tbody.innerHTML = '';
+            
+            docs.forEach(doc => {
+                const row = tbody.insertRow();
+                row.className = 'document-row';
+                
+                row.innerHTML = `
+                    <td><input type="checkbox" value="${doc.id}" class="doc-checkbox"></td>
+                    <td style="font-size: 0.8em;">${doc.id.substring(0, 8)}...</td>
+                    <td>${doc.content_preview}</td>
+                    <td>${doc.metadata.source || 'N/A'}</td>
+                    <td>${new Date(doc.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button onclick="deleteDocument('${doc.id}')" class="danger">Delete</button>
+                    </td>
+                `;
+            });
+        }
+        
+        async function loadStats() {
+            if (!currentKB) {
+                showStatus('Please select a knowledge base', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents/stats`);
+                const stats = await response.json();
+                
+                const statsDiv = document.getElementById('stats');
+                statsDiv.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_documents}</div>
+                        <div>Total Documents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${Object.keys(stats.by_source).length}</div>
+                        <div>Sources</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${Object.keys(stats.file_types).length}</div>
+                        <div>File Types</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${Object.keys(stats.by_topic).length}</div>
+                        <div>Topics</div>
+                    </div>
+                `;
+            } catch (error) {
+                showStatus('Error loading stats: ' + error.message, 'error');
+            }
+        }
+        
+        async function deleteDocument(docId) {
+            if (!confirm('Delete this document?')) return;
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents/delete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({document_ids: [docId]})
+                });
+                
+                if (response.ok) {
+                    showStatus('Document deleted', 'success');
+                    loadDocuments();
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function deleteSelected() {
+            const selected = Array.from(document.querySelectorAll('.doc-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            if (selected.length === 0) {
+                showStatus('No documents selected', 'error');
+                return;
+            }
+            
+            if (!confirm(`Delete ${selected.length} documents?`)) return;
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents/delete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({document_ids: selected})
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus(result.message, 'success');
+                    loadDocuments();
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function deleteOldDocuments() {
+            const days = document.getElementById('olderThanDays').value;
+            if (!days) {
+                showStatus('Please enter number of days', 'error');
+                return;
+            }
+            
+            if (!confirm(`Delete documents older than ${days} days?`)) return;
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents/delete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({older_than_days: parseInt(days)})
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus(result.message, 'success');
+                    loadDocuments();
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function deleteByPattern() {
+            const pattern = document.getElementById('sourcePattern').value;
+            if (!pattern) {
+                showStatus('Please enter a pattern', 'error');
+                return;
+            }
+            
+            if (!confirm(`Delete documents matching pattern "${pattern}"?`)) return;
+            
+            try {
+                const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/documents/delete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({source_pattern: pattern})
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus(result.message, 'success');
+                    loadDocuments();
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+           }
+       }
+       
+       async function searchAndDelete(confirm) {
+           const query = document.getElementById('searchQuery').value;
+           if (!query) {
+               showStatus('Please enter a search query', 'error');
+               return;
+           }
+           
+           try {
+               const response = await fetch(
+                   `http://localhost:8000/api/knowledge/${currentKB}/documents/search-delete?query=${encodeURIComponent(query)}&confirm=${confirm}`,
+                   {method: 'POST'}
+               );
+               
+               if (response.ok) {
+                   const result = await response.json();
+                   
+                   if (!confirm) {
+                       // Preview mode
+                       const previewDiv = document.getElementById('preview');
+                       previewDiv.style.display = 'block';
+                       previewDiv.innerHTML = `
+                           <h4>Preview: Found ${result.found_count} documents</h4>
+                           ${result.documents.map(doc => `
+                               <div style="margin: 5px 0;">
+                                   <strong>Score: ${doc.score.toFixed(3)}</strong> - ${doc.content_preview}
+                               </div>
+                           `).join('')}
+                       `;
+                   } else {
+                       showStatus(result.message, 'success');
+                       document.getElementById('preview').style.display = 'none';
+                       loadDocuments();
+                   }
+               }
+           } catch (error) {
+               showStatus('Error: ' + error.message, 'error');
+           }
+       }
+       
+       async function cleanupKB() {
+           if (!currentKB) {
+               showStatus('Please select a knowledge base', 'error');
+               return;
+           }
+           
+           const confirmText = prompt('Type "CONFIRM" to delete all documents:');
+           if (confirmText !== 'CONFIRM') {
+               showStatus('Cleanup cancelled', 'info');
+               return;
+           }
+           
+           try {
+               const response = await fetch(`http://localhost:8000/api/knowledge/${currentKB}/cleanup`, {
+                   method: 'POST',
+                   headers: {'Content-Type': 'application/json'},
+                   body: JSON.stringify({delete_all: true, confirm: 'CONFIRM'})
+               });
+               
+               if (response.ok) {
+                   const result = await response.json();
+                   showStatus(result.message, 'success');
+                   loadDocuments();
+                   loadStats();
+               }
+           } catch (error) {
+               showStatus('Error: ' + error.message, 'error');
+           }
+       }
+       
+       function toggleSelectAll() {
+           const selectAll = document.getElementById('selectAll').checked;
+           document.querySelectorAll('.doc-checkbox').forEach(cb => {
+               cb.checked = selectAll;
+           });
+       }
+       
+       function showStatus(message, type) {
+           const status = document.getElementById('status');
+           status.className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+           status.textContent = message;
+           
+           setTimeout(() => {
+               status.textContent = '';
+           }, 5000);
+       }
+       
+       // 初始化
+       window.onload = function() {
+           refreshKBList();
+       };
+   </script>
+</body>
+</html>

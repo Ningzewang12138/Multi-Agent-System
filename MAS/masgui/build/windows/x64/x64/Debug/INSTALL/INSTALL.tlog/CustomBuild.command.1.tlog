@@ -1,0 +1,10 @@
+^D:\WORKSPACE\PYTHON_WORKSPACE\AIAGENT-DEV\MAS\MASGUI\BUILD\WINDOWS\X64\CMAKEFILES\C4383350832B9875DEE51F8453A6D406\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

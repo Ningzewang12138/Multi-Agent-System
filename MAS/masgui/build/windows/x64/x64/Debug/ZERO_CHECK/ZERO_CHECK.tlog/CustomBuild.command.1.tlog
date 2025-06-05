@@ -1,0 +1,10 @@
+^D:\WORKSPACE\PYTHON_WORKSPACE\AIAGENT-DEV\MAS\MASGUI\BUILD\WINDOWS\X64\CMAKEFILES\C4383350832B9875DEE51F8453A6D406\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows -BD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/ollama_app.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

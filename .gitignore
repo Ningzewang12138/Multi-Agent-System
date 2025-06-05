@@ -1,0 +1,7 @@
+# 忽略大文件和依赖包
+MAS/Lib/
+MAS/models/
+*.dll
+*.lib
+*.pyd
+*.safetensors
