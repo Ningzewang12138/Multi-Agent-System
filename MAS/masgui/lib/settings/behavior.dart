@@ -19,7 +19,8 @@ class ScreenSettingsBehavior extends StatefulWidget {
 
 class _ScreenSettingsBehaviorState extends State<ScreenSettingsBehavior> {
   final systemInputController = TextEditingController(
-      text: prefs?.getString("system") ?? "You are a helpful assistant");
+      text: prefs?.getString("system") ??
+          "Your name is Baymin, you are a helpful assistant");
 
   @override
   void dispose() {
@@ -54,7 +55,8 @@ class _ScreenSettingsBehaviorState extends State<ScreenSettingsBehavior> {
                               labelText: AppLocalizations.of(context)!
                                   .settingsSystemMessage,
                               alignLabelWithHint: true,
-                              hintText: "You are a helpful assistant",
+                              hintText:
+                                  "Your name is Baymin, you are a helpful assistant",
                               suffixIcon: IconButton(
                                 enableFeedback: false,
                                 tooltip:
@@ -65,7 +67,7 @@ class _ScreenSettingsBehaviorState extends State<ScreenSettingsBehavior> {
                                       "system",
                                       (systemInputController.text.isNotEmpty)
                                           ? systemInputController.text
-                                          : "You are a helpful assistant");
+                                          : "Your name is Baymin, you are a helpful assistant");
                                 },
                                 icon: const Icon(Icons.save_rounded),
                               ),

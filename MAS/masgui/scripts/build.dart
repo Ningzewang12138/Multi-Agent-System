@@ -6,7 +6,7 @@ void main() async {
   Directory.current = Directory(Platform.script.toFilePath()).parent.parent;
   String flutterExecutable = Platform.isWindows ? 'flutter.bat' : 'flutter';
 
-  print("Build script for Ollama App by JHubi1");
+  print("Build script for Baymin by JHubi1");
   print("Report issues at: https://github.com/JHubi1/ollama-app/issues");
 
   print('----------');
@@ -19,7 +19,7 @@ void main() async {
   var version = versionLine.split(':').last.trim().split('+').first.trim();
   var versionCode = versionLine.split(':').last.trim().split('+')[1].trim();
   print(
-      "Building Ollama App v$version (build $versionCode) - this may take a while");
+      "Building Baymin v$version (build $versionCode) - this may take a while");
 
   print('----------');
 

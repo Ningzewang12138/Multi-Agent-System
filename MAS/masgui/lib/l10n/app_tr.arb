@@ -146,5 +146,5 @@
   "settingsGithub": "GitHub",
   "settingsReportIssue": "Sorun Bildir",
   "settingsLicenses": "Lisanslar",
-  "settingsVersion": "Ollama App v{version}"
+  "settingsVersion": "Baymin v{version}"
 }

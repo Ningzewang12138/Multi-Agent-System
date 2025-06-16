@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAS Server Test Console</title>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        /* Header */
+        .header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1px;
+            background-color: var(--border-color);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: var(--light-color);
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            min-height: 500px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: var(--dark-color);
+            font-size: 1.25rem;
+        }
+        
+        /* Forms */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        /* Buttons */
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .button:hover {
+            background-color: #0056b3;
+        }
+        
+        .button.success {
+            background-color: var(--success-color);
+        }
+        
+        .button.danger {
+            background-color: var(--danger-color);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Status Messages */
+        .status {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Response Display */
+        .response-container {
+            background-color: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .response-container pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Model Info */
+        .model-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Chat Messages */
+        #chatMessages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+        }
+        
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .user-message {
+            background-color: #e3f2fd;
+            text-align: right;
+        }
+        
+        .assistant-message {
+            background-color: white;
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-results {
+            background-color: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--light-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1 1 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Multi-Agent System Test Console</h1>
+    </div>
+    
+    <div class="container">
+        <!-- Server Status -->
+        <div class="model-info">
+            <div>
+                <strong>Server Status:</strong>
+                <span id="serverStatus">Checking...</span>
+            </div>
+            <div>
+                <button class="button" onclick="checkServerStatus()">Refresh Status</button>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('chat')">Chat Test</button>
+            <button class="tab" onclick="switchTab('rag')">RAG Test</button>
+            <button class="tab" onclick="switchTab('knowledge')">Knowledge Base</button>
+            <button class="tab" onclick="switchTab('api')">API Explorer</button>
+            <button class="tab" onclick="switchTab('system')">System Info</button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Chat Test Tab -->
+            <div id="chat-tab" class="tab-pane active">
+                <div class="card">
+                    <h2>Chat Configuration</h2>
+                    <div>
+                        <label>Model:</label>
+                        <select id="chat-model">
+                            <option value="">Auto (Use Default)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Temperature:</label>
+                        <input type="number" id="chat-temperature" value="0.7" min="0" max="2" step="0.1">
+                    </div>
+                    <div>
+                        <label>Message:</label>
+                        <textarea id="chat-message" rows="3" placeholder="Enter your message here...">你好，请介绍一下自己</textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="button" onclick="testChat(false)">Send (Non-Stream)</button>
+                        <button class="button" onclick="testChat(true)">Send (Stream)</button>
+                        <button class="button success" onclick="testMultiTurn()">Test Multi-Turn</button>
+                    </div>
+                    <div id="chat-status" class="status"></div>
+                    <div class="response-container">
+                        <pre id="chat-response">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RAG Test Tab -->
+            <div id="rag-tab" class="tab-pane">
+                <div class="grid">
+                    <div>
+                        <div class="card">
+                            <h2>Knowledge Base</h2>
+                            <label>Select Knowledge Base:</label>
+                            <select id="rag-kb">
+                                <option value="">Loading...</option>
+                            </select>
+                            <button class="button" onclick="refreshKBList()">Refresh</button>
+                            
+                            <hr style="margin: 20px 0;">
+                            
+                            <h3>Create New KB</h3>
+                            <input type="text" id="newKBName" placeholder="KB Name">
+                            <textarea id="newKBDesc" placeholder="Description" rows="2"></textarea>
+                            <button class="button success" onclick="createKB()">Create</button>
+                            
+                            <hr style="margin: 20px 0;">
+                            
+                            <h3>Add Document</h3>
+                            <textarea id="docContent" placeholder="Document content..." rows="4"></textarea>
+                            <button class="button" onclick="addDocument()">Add to KB</button>
+                            
+                            <h3>Upload File</h3>
+                            <input type="file" id="fileInput" accept=".txt,.md,.pdf,.docx">
+                            <button class="button" onclick="uploadFile()">Upload</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="card">
+                            <h2>RAG Chat</h2>
+                            <div id="chatMessages"></div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="userInput" placeholder="Ask a question..." style="flex: 1;">
+                                <button class="button" onclick="sendRAGMessage()">Send</button>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label>
+                                    <input type="checkbox" id="useRAG" checked> Use RAG
+                                </label>
+                                <label style="margin-left: 20px;">
+                                    Search Limit: <input type="number" id="searchLimit" value="5" min="1" max="20" style="width: 50px;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="rag-status" class="status"></div>
+            </div>
+            
+            <!-- Knowledge Base Tab -->
+            <div id="knowledge-tab" class="tab-pane">
+                <div class="card">
+                    <h2>Knowledge Base Management</h2>
+                    <button class="button" onclick="loadKnowledgeBases()">Refresh List</button>
+                    <div id="kb-list" style="margin-top: 20px;">
+                        Loading knowledge bases...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API Explorer Tab -->
+            <div id="api-tab" class="tab-pane">
+                <div class="card">
+                    <h2>API Explorer</h2>
+                    <div style="display: grid; grid-template-columns: 100px 1fr; gap: 10px; align-items: center;">
+                        <label>Method:</label>
+                        <select id="api-method">
+                            <option>GET</option>
+                            <option>POST</option>
+                            <option>PUT</option>
+                            <option>DELETE</option>
+                        </select>
+                        
+                        <label>Endpoint:</label>
+                        <input type="text" id="api-endpoint" placeholder="/api/chat/models">
+                        
+                        <label>Headers:</label>
+                        <textarea id="api-headers" rows="2" placeholder='{"Content-Type": "application/json"}'>{
+  "Content-Type": "application/json"
+}</textarea>
+                        
+                        <label>Body:</label>
+                        <textarea id="api-body" rows="4" placeholder='{"key": "value"}'></textarea>
+                    </div>
+                    <button class="button" onclick="testAPI()">Send Request</button>
+                    <div id="api-status" class="status"></div>
+                    <div class="response-container">
+                        <pre id="api-response">Response will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Info Tab -->
+            <div id="system-tab" class="tab-pane">
+                <div class="card">
+                    <h2>System Information</h2>
+                    <button class="button" onclick="loadSystemInfo()">Refresh</button>
+                    <div id="system-info" style="margin-top: 20px;">
+                        Loading system information...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let models = [];
+        let knowledgeBases = [];
+        const BASE_URL = 'http://localhost:8000';
+        
+        // Initialize
+        window.onload = function() {
+            checkServerStatus();
+            loadModels();
+            refreshKBList();
+        };
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Load tab-specific data
+            if (tabName === 'knowledge') {
+                loadKnowledgeBases();
+            } else if (tabName === 'system') {
+                loadSystemInfo();
+            }
+        }
+        
+        // Server status check
+        async function checkServerStatus() {
+            const statusEl = document.getElementById('serverStatus');
+            statusEl.innerHTML = '<span class="spinner"></span> Checking...';
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/system/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    statusEl.innerHTML = `<span style="color: var(--success-color);">✓ Healthy</span> | Models: ${data.model_count || 0} | Ollama: ${data.ollama_connected ? 'Connected' : 'Disconnected'}`;
+                } else {
+                    statusEl.innerHTML = `<span style="color: var(--warning-color);">⚠ ${data.status}</span>`;
+                }
+            } catch (error) {
+                statusEl.innerHTML = `<span style="color: var(--danger-color);">✗ Offline</span>`;
+            }
+        }
+        
+        // Load models
+        async function loadModels() {
+            try {
+                const response = await fetch(BASE_URL + '/api/chat/models');
+                const data = await response.json();
+                models = data.data || [];
+                
+                const modelSelect = document.getElementById('chat-model');
+                modelSelect.innerHTML = '<option value="">Auto (Use Default)</option>' +
+                    models.map(m => 
+                        `<option value="${m.name}" ${m.is_default ? 'selected' : ''}>${m.name}${m.is_default ? ' (default)' : ''}</option>`
+                    ).join('');
+            } catch (error) {
+                console.error('Error loading models:', error);
+            }
+        }
+        
+        // Show status message
+        function showStatus(elementId, message, type = 'info') {
+            const statusEl = document.getElementById(elementId);
+            statusEl.className = 'status ' + type;
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Chat test
+        async function testChat(stream = false) {
+            const model = document.getElementById('chat-model').value;
+            const message = document.getElementById('chat-message').value;
+            const temperature = parseFloat(document.getElementById('chat-temperature').value);
+            const responseEl = document.getElementById('chat-response');
+            
+            if (!message) {
+                showStatus('chat-status', 'Please enter a message', 'error');
+                return;
+            }
+            
+            responseEl.textContent = 'Sending request...';
+            showStatus('chat-status', 'Sending request...', 'info');
+            
+            const requestBody = {
+                messages: [{role: 'user', content: message}],
+                stream: stream,
+                temperature: temperature
+            };
+            
+            if (model) {
+                requestBody.model = model;
+            }
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/chat/completions', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Request failed');
+                }
+                
+                if (stream) {
+                    responseEl.textContent = '';
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    while (true) {
+                        const {done, value} = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                if (data === '[DONE]') continue;
+                                
+                                try {
+                                    const json = JSON.parse(data);
+                                    if (json.content) {
+                                        responseEl.textContent += json.content;
+                                    }
+                                } catch (e) {}
+                            }
+                        }
+                    }
+                    showStatus('chat-status', 'Stream completed successfully!', 'success');
+                } else {
+                    const data = await response.json();
+                    responseEl.textContent = JSON.stringify(data, null, 2);
+                    showStatus('chat-status', `Request completed! Model: ${data.model || 'default'}`, 'success');
+                }
+            } catch (error) {
+                responseEl.textContent = 'Error: ' + error.message;
+                showStatus('chat-status', error.message, 'error');
+            }
+        }
+        
+        // Multi-turn conversation test
+        async function testMultiTurn() {
+            const responseEl = document.getElementById('chat-response');
+            responseEl.textContent = 'Testing multi-turn conversation...\n\n';
+            
+            const messages = [
+                {role: 'user', content: 'My name is Alice. Remember this.'},
+                {role: 'assistant', content: 'Hello Alice! I\'ll remember your name.'},
+                {role: 'user', content: 'What\'s my name?'}
+            ];
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/chat/completions', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({messages: messages, stream: false})
+                });
+                
+                const data = await response.json();
+                responseEl.textContent += 'Messages:\n' + JSON.stringify(messages, null, 2) + '\n\n';
+                responseEl.textContent += 'Response:\n' + data.choices[0].message.content;
+                
+                showStatus('chat-status', 'Multi-turn test completed!', 'success');
+            } catch (error) {
+                responseEl.textContent = 'Error: ' + error.message;
+                showStatus('chat-status', error.message, 'error');
+            }
+        }
+        
+        // Knowledge base functions
+        async function refreshKBList() {
+            try {
+                const response = await fetch(BASE_URL + '/api/knowledge/');
+                knowledgeBases = await response.json();
+                
+                const select = document.getElementById('rag-kb');
+                select.innerHTML = '<option value="">-- Select KB --</option>' +
+                    knowledgeBases.map(kb => 
+                        `<option value="${kb.id}">${kb.name} (${kb.document_count} docs)</option>`
+                    ).join('');
+                
+                showStatus('rag-status', 'Knowledge bases refreshed', 'success');
+            } catch (error) {
+                showStatus('rag-status', 'Error loading knowledge bases: ' + error.message, 'error');
+            }
+        }
+        
+        async function createKB() {
+            const name = document.getElementById('newKBName').value;
+            const description = document.getElementById('newKBDesc').value;
+            
+            if (!name) {
+                showStatus('rag-status', 'Please enter a name', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/knowledge/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, description})
+                });
+                
+                if (response.ok) {
+                    const kb = await response.json();
+                    showStatus('rag-status', `Created KB: ${kb.name}`, 'success');
+                    document.getElementById('newKBName').value = '';
+                    document.getElementById('newKBDesc').value = '';
+                    await refreshKBList();
+                } else {
+                    const error = await response.json();
+                    showStatus('rag-status', 'Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showStatus('rag-status', 'Error creating KB: ' + error.message, 'error');
+            }
+        }
+        
+        async function addDocument() {
+            const content = document.getElementById('docContent').value;
+            const kbId = document.getElementById('rag-kb').value;
+            
+            if (!kbId) {
+                showStatus('rag-status', 'Please select a knowledge base', 'error');
+                return;
+            }
+            
+            if (!content) {
+                showStatus('rag-status', 'Please enter document content', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(BASE_URL + `/api/knowledge/${kbId}/documents`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        content: content,
+                        metadata: {source: 'manual_input', timestamp: new Date().toISOString()}
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus('rag-status', `Added document with ${result.chunk_count} chunks`, 'success');
+                    document.getElementById('docContent').value = '';
+                    await refreshKBList();
+                } else {
+                    const error = await response.json();
+                    showStatus('rag-status', 'Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showStatus('rag-status', 'Error adding document: ' + error.message, 'error');
+            }
+        }
+        
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const kbId = document.getElementById('rag-kb').value;
+            
+            if (!kbId) {
+                showStatus('rag-status', 'Please select a knowledge base', 'error');
+                return;
+            }
+            
+            if (!fileInput.files[0]) {
+                showStatus('rag-status', 'Please select a file', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                showStatus('rag-status', 'Uploading file...', 'info');
+                const response = await fetch(BASE_URL + `/api/knowledge/${kbId}/documents/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus('rag-status', `Uploaded ${result.filename}: ${result.chunk_count} chunks`, 'success');
+                    fileInput.value = '';
+                    await refreshKBList();
+                } else {
+                    const error = await response.json();
+                    showStatus('rag-status', 'Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showStatus('rag-status', 'Error uploading file: ' + error.message, 'error');
+            }
+        }
+        
+        // RAG chat
+        async function sendRAGMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const useRAG = document.getElementById('useRAG').checked;
+            const kbId = document.getElementById('rag-kb').value;
+            const searchLimit = parseInt(document.getElementById('searchLimit').value);
+            
+            if (useRAG && !kbId) {
+                showStatus('rag-status', 'Please select a knowledge base for RAG', 'error');
+                return;
+            }
+            
+            addMessageToChat('user', message);
+            input.value = '';
+            
+            try {
+                let url, body;
+                
+                if (useRAG) {
+                    url = BASE_URL + '/api/chat/rag/completions';
+                    body = {
+                        knowledge_base_id: kbId,
+                        messages: [{role: 'user', content: message}],
+                        stream: false,
+                        search_limit: searchLimit
+                    };
+                } else {
+                    url = BASE_URL + '/api/chat/completions';
+                    body = {
+                        messages: [{role: 'user', content: message}],
+                        stream: false
+                    };
+                }
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.search_results) {
+                        addSearchResultsToChat(data.search_results);
+                    }
+                    
+                    const assistantMessage = data.choices[0].message.content;
+                    addMessageToChat('assistant', assistantMessage);
+                } else {
+                    const error = await response.json();
+                    addMessageToChat('error', 'Error: ' + error.detail);
+                }
+            } catch (error) {
+                addMessageToChat('error', 'Error: ' + error.message);
+            }
+        }
+        
+        function addMessageToChat(role, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            if (role === 'error') {
+                messageDiv.style.color = 'red';
+            }
+            
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function addSearchResultsToChat(searchResults) {
+            const chatMessages = document.getElementById('chatMessages');
+            const resultsDiv = document.createElement('div');
+            resultsDiv.className = 'search-results';
+            
+            let html = `<strong>Found ${searchResults.count} relevant documents:</strong><br>`;
+            if (searchResults.documents) {
+                searchResults.documents.forEach((doc, i) => {
+                    html += `${i + 1}. ${doc.content.substring(0, 100)}...<br>`;
+                });
+            }
+            
+            resultsDiv.innerHTML = html;
+            chatMessages.appendChild(resultsDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // API Explorer
+        async function testAPI() {
+            const method = document.getElementById('api-method').value;
+            const endpoint = document.getElementById('api-endpoint').value;
+            const headers = document.getElementById('api-headers').value;
+            const body = document.getElementById('api-body').value;
+            const responseEl = document.getElementById('api-response');
+            
+            if (!endpoint) {
+                showStatus('api-status', 'Please enter an endpoint', 'error');
+                return;
+            }
+            
+            responseEl.textContent = 'Sending request...';
+            
+            try {
+                const options = {
+                    method: method,
+                    headers: headers ? JSON.parse(headers) : {'Content-Type': 'application/json'}
+                };
+                
+                if (method !== 'GET' && body) {
+                    try {
+                        options.body = JSON.stringify(JSON.parse(body));
+                    } catch (e) {
+                        showStatus('api-status', 'Invalid JSON in body', 'error');
+                        return;
+                    }
+                }
+                
+                const url = endpoint.startsWith('http') ? endpoint : BASE_URL + endpoint;
+                const response = await fetch(url, options);
+                const contentType = response.headers.get('content-type');
+                
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                responseEl.textContent = 
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+                
+                showStatus('api-status', `Request completed: ${response.status}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                responseEl.textContent = 'Error: ' + error.message;
+                showStatus('api-status', error.message, 'error');
+            }
+        }
+        
+        // Knowledge Base Management
+        async function loadKnowledgeBases() {
+            const listEl = document.getElementById('kb-list');
+            listEl.innerHTML = '<div class="spinner"></div> Loading...';
+            
+            try {
+                const response = await fetch(BASE_URL + '/api/knowledge/');
+                const kbs = await response.json();
+                
+                if (kbs.length === 0) {
+                    listEl.innerHTML = '<p>No knowledge bases found.</p>';
+                    return;
+                }
+                
+                let html = '<table style="width: 100%; border-collapse: collapse;">';
+                html += '<thead><tr style="background-color: var(--light-color);">';
+                html += '<th style="padding: 10px; text-align: left;">Name</th>';
+                html += '<th style="padding: 10px; text-align: left;">Description</th>';
+                html += '<th style="padding: 10px; text-align: center;">Documents</th>';
+                html += '<th style="padding: 10px; text-align: center;">Status</th>';
+                html += '<th style="padding: 10px; text-align: center;">Actions</th>';
+                html += '</tr></thead><tbody>';
+                
+                kbs.forEach(kb => {
+                    html += '<tr style="border-bottom: 1px solid var(--border-color);">';
+                    html += `<td style="padding: 10px;">${kb.name}</td>`;
+                    html += `<td style="padding: 10px;">${kb.description || '-'}</td>`;
+                    html += `<td style="padding: 10px; text-align: center;">${kb.document_count}</td>`;
+                    html += `<td style="padding: 10px; text-align: center;">${kb.is_draft ? 'Draft' : 'Published'}</td>`;
+                    html += `<td style="padding: 10px; text-align: center;">`;
+                    html += `<button class="button danger" onclick="deleteKB('${kb.id}')" style="padding: 5px 10px; font-size: 12px;">Delete</button>`;
+                    html += `</td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                listEl.innerHTML = html;
+            } catch (error) {
+                listEl.innerHTML = `<p style="color: red;">Error loading knowledge bases: ${error.message}</p>`;
+            }
+        }
+        
+        async function deleteKB(kbId) {
+            if (!confirm('Are you sure you want to delete this knowledge base?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(BASE_URL + `/api/knowledge/${kbId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showStatus('knowledge-status', 'Knowledge base deleted successfully', 'success');
+                    loadKnowledgeBases();
+                } else {
+                    const error = await response.json();
+                    showStatus('knowledge-status', 'Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showStatus('knowledge-status', 'Error deleting KB: ' + error.message, 'error');
+            }
+        }
+        
+        // System Information
+        async function loadSystemInfo() {
+            const infoEl = document.getElementById('system-info');
+            infoEl.innerHTML = '<div class="spinner"></div> Loading...';
+            
+            try {
+                // Get system info
+                const sysResponse = await fetch(BASE_URL + '/api/system/info');
+                const sysInfo = await sysResponse.json();
+                
+                // Get health info
+                const healthResponse = await fetch(BASE_URL + '/api/system/health');
+                const healthInfo = await healthResponse.json();
+                
+                // Get model info
+                const modelResponse = await fetch(BASE_URL + '/api/chat/models');
+                const modelInfo = await modelResponse.json();
+                
+                let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">';
+                
+                // System Info Card
+                html += '<div class="card">';
+                html += '<h3>System Information</h3>';
+                html += `<p><strong>Platform:</strong> ${sysInfo.platform}</p>`;
+                html += `<p><strong>Python Version:</strong> ${sysInfo.python_version}</p>`;
+                html += `<p><strong>CPU Cores:</strong> ${sysInfo.cpu_count}</p>`;
+                html += `<p><strong>CPU Usage:</strong> ${sysInfo.cpu_percent}%</p>`;
+                html += `<p><strong>Memory Total:</strong> ${(sysInfo.memory.total / 1024 / 1024 / 1024).toFixed(2)} GB</p>`;
+                html += `<p><strong>Memory Used:</strong> ${(sysInfo.memory.used / 1024 / 1024 / 1024).toFixed(2)} GB (${sysInfo.memory.percent}%)</p>`;
+                html += '</div>';
+                
+                // Health Status Card
+                html += '<div class="card">';
+                html += '<h3>Health Status</h3>';
+                html += `<p><strong>Status:</strong> <span style="color: ${healthInfo.status === 'healthy' ? 'green' : 'red'};">${healthInfo.status}</span></p>`;
+                html += `<p><strong>Server Time:</strong> ${healthInfo.timestamp}</p>`;
+                html += `<p><strong>Ollama:</strong> ${healthInfo.ollama_connected ? 'Connected' : 'Disconnected'}</p>`;
+                html += `<p><strong>Model Count:</strong> ${healthInfo.model_count}</p>`;
+                html += `<p><strong>Default Model:</strong> ${healthInfo.default_model || 'None'}</p>`;
+                html += '</div>';
+                
+                // Models Card
+                html += '<div class="card">';
+                html += '<h3>Available Models</h3>';
+                if (modelInfo.data && modelInfo.data.length > 0) {
+                    html += '<ul style="margin: 0; padding-left: 20px;">';
+                    modelInfo.data.forEach(model => {
+                        html += `<li>${model.name}${model.is_default ? ' (default)' : ''}</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No models available</p>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+                
+                infoEl.innerHTML = html;
+            } catch (error) {
+                infoEl.innerHTML = `<p style="color: red;">Error loading system information: ${error.message}</p>`;
+            }
+        }
+        
+        // Enter key handling for chat inputs
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendRAGMessage();
+            }
+        });
+        
+        document.getElementById('chat-message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                testChat(false);
+            }
+        });
+    </script>
+</body>
+</html>

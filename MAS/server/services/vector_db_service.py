@@ -37,56 +37,129 @@ class VectorDBService:
     def _ensure_default_collection(self):
         """确保默认集合存在"""
         try:
-            self.client.get_or_create_collection(
-                name="default",
-                metadata={"description": "Default knowledge base"}
-            )
+            # 检查默认集合是否存在
+            existing_collections = [c.name for c in self.client.list_collections()]
+            if "default" not in existing_collections:
+                self.client.create_collection(
+                    name="default",
+                    metadata={
+                        "description": "Default knowledge base",
+                        "created_at": datetime.now().isoformat(),
+                        "document_count": 0
+                    }
+                )
+            else:
+                # 如果存在但没有元数据，我们无法更新它
+                # ChromaDB 不支持更新集合元数据
+                pass
         except Exception as e:
             logger.error(f"Failed to create default collection: {e}")
     
-    def create_collection(self, name: str, description: str = "") -> Dict[str, Any]:
+    def create_collection(self, name: str, description: str = "", metadata: Optional[Dict[str, Any]] = None, collection_id: Optional[str] = None) -> Dict[str, Any]:
         """创建新的知识库集合"""
         try:
+            # 使用指定的ID或生成新的
+            if collection_id is None:
+                collection_id = str(uuid.uuid4())
+            
             # 检查集合是否已存在
             existing_collections = [c.name for c in self.client.list_collections()]
-            if name in existing_collections:
-                raise ValueError(f"Collection '{name}' already exists")
+            logger.info(f"Existing collections: {existing_collections}")
+            logger.info(f"Trying to create collection with id: {collection_id}")
+            logger.info(f"Collection display name: {name}")
+            
+            # 如果集合已存在，生成新的ID
+            retry_count = 0
+            while collection_id in existing_collections and retry_count < 5:
+                logger.warning(f"Collection ID {collection_id} already exists, generating new one...")
+                collection_id = str(uuid.uuid4())
+                retry_count += 1
+                
+            if collection_id in existing_collections:
+                raise ValueError(f"Failed to generate unique collection ID after {retry_count} attempts")
             
             # 创建集合
+            collection_metadata = {
+                "description": str(description or ""),  # 确保是字符串
+                "created_at": datetime.now().isoformat(),
+                "document_count": 0,
+                "status": "draft",  # 默认为草稿状态
+                "device_id": "",  # 创建设备ID
+                "device_name": "",  # 创建设备名称
+                "published_at": "",  # 发布时间
+                "original_name": name  # 原始名称（不含设备后缀）
+            }
+            
+            # 添加额外的元数据，过滤掉None值并转换为字符串
+            if metadata:
+                for key, value in metadata.items():
+                    if value is not None:  # 只添加非None值
+                        # ChromaDB只支持字符串、数字和布尔值
+                        if isinstance(value, bool):
+                            collection_metadata[key] = value
+                        elif isinstance(value, (int, float)):
+                            collection_metadata[key] = value
+                        else:
+                            collection_metadata[key] = str(value)
+            
+            # 在元数据中保存显示名称
+            collection_metadata["display_name"] = name
+            
             collection = self.client.create_collection(
-                name=name,
-                metadata={
-                    "description": description,
-                    "created_at": datetime.now().isoformat(),
-                    "document_count": 0
-                }
+                name=collection_id,  # 使用ID作为collection的名称
+                metadata=collection_metadata
             )
             
-            logger.info(f"Created collection: {name}")
+            logger.info(f"Created collection: {name} with id: {collection_id}")
             return {
-                "id": name,
-                "name": name,
+                "id": collection_id,
+                "name": name,  # 返回显示名称
                 "description": description,
                 "created_at": datetime.now().isoformat(),
-                "document_count": 0
+                "document_count": 0,
+                "status": collection_metadata.get("status", "draft"),
+                "device_id": collection_metadata.get("device_id", ""),
+                "device_name": collection_metadata.get("device_name", "")
             }
             
         except Exception as e:
             logger.error(f"Failed to create collection: {e}")
             raise
     
-    def list_collections(self) -> List[Dict[str, Any]]:
-        """列出所有知识库集合"""
+    def list_collections(self, device_id: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """列出知识库集合
+        
+        Args:
+            device_id: 如果指定，只返回该设备的知识库
+            status: 如果指定，只返回该状态的知识库（draft/published）
+        """
         try:
             collections = []
             for collection in self.client.list_collections():
                 metadata = collection.metadata or {}
+                
+                # 过滤条件
+                if device_id and metadata.get("device_id") != device_id:
+                    continue
+                if status and metadata.get("status", "draft") != status:
+                    continue
+                
+                # 如果没有 created_at，使用当前时间
+                created_at = metadata.get("created_at")
+                if not created_at:
+                    created_at = datetime.now().isoformat()
+                
                 collections.append({
-                    "id": collection.name,
-                    "name": collection.name,
+                    "id": collection.name,  # collection的实际ID
+                    "name": metadata.get("display_name", collection.name),  # 显示名称
                     "description": metadata.get("description", ""),
-                    "created_at": metadata.get("created_at", ""),
-                    "document_count": collection.count()
+                    "created_at": created_at,
+                    "document_count": collection.count(),
+                    "status": metadata.get("status", "draft"),
+                    "device_id": metadata.get("device_id", ""),
+                    "device_name": metadata.get("device_name", ""),
+                    "published_at": metadata.get("published_at", ""),
+                    "original_name": metadata.get("original_name", "")
                 })
             return collections
             
@@ -251,4 +324,95 @@ class VectorDBService:
             
         except Exception as e:
             logger.error(f"Failed to update document: {e}")
+            raise
+    
+    def publish_collection(self, collection_id: str, new_name: Optional[str] = None) -> Dict[str, Any]:
+        """发布知识库（从草稿状态改为公开状态）
+        
+        Args:
+            collection_id: 集合ID
+            new_name: 新的显示名称（可选）
+            
+        Returns:
+            更新后的集合信息
+        """
+        try:
+            # 获取集合
+            collection = self.client.get_collection(name=collection_id)
+            metadata = collection.metadata or {}
+            
+            # 检查是否已经发布
+            if metadata.get("status") == "published":
+                raise ValueError("Collection is already published")
+            
+            # 获取所有文档和嵌入
+            all_docs = collection.get(include=["documents", "embeddings", "metadatas"])
+            
+            # 创建新的元数据
+            new_metadata = metadata.copy()
+            new_metadata["status"] = "published"
+            new_metadata["published_at"] = datetime.now().isoformat()
+            if new_name:
+                new_metadata["display_name"] = new_name
+            
+            # 由于ChromaDB不支持直接更新元数据，需要重新创建集合
+            # 首先删除旧集合
+            self.client.delete_collection(name=collection_id)
+            
+            # 创建新集合
+            new_collection = self.client.create_collection(
+                name=collection_id,
+                metadata=new_metadata
+            )
+            
+            # 重新添加所有文档
+            if all_docs['ids']:
+                new_collection.add(
+                    ids=all_docs['ids'],
+                    documents=all_docs['documents'],
+                    embeddings=all_docs['embeddings'],
+                    metadatas=all_docs['metadatas']
+                )
+            
+            logger.info(f"Published collection: {collection_id}")
+            
+            return {
+                "id": collection_id,
+                "name": new_metadata.get("display_name", collection_id),
+                "description": new_metadata.get("description", ""),
+                "status": "published",
+                "published_at": new_metadata["published_at"],
+                "document_count": new_collection.count()
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to publish collection: {e}")
+            raise
+    
+    def check_name_exists(self, name: str, exclude_id: Optional[str] = None) -> bool:
+        """检查知识库名称是否已存在
+        
+        Args:
+            name: 要检查的名称
+            exclude_id: 排除的集合ID（用于更新时排除自己）
+            
+        Returns:
+            True 如果名称已存在，否则 False
+        """
+        try:
+            for collection in self.client.list_collections():
+                if collection.name == exclude_id:
+                    continue
+                    
+                metadata = collection.metadata or {}
+                display_name = metadata.get("display_name", collection.name)
+                
+                # 只检查公开的知识库
+                if metadata.get("status") == "published" and display_name == name:
+                    return True
+                    
+            return False
+            
+        except Exception as e:
+            logger.error(f"Failed to check name existence: {e}")
             raise

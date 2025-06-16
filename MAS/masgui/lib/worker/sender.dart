@@ -8,7 +8,11 @@ import 'haptic.dart';
 import 'setter.dart';
 import '../main.dart';
 import '../services/multi_agent_service.dart';
+import '../services/local_rag_service.dart';
+import '../services/unified_knowledge_base_service.dart';
 import '../config/app_config.dart';
+import '../config/app_mode.dart';
+import '../services/internet/internet_chat_service.dart';
 
 import 'package:masgui/l10n/gen/app_localizations.dart';
 
@@ -19,14 +23,10 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 // import 'package:scroll_to_index/scroll_to_index.dart';
 
-// RAG相关状态变量
-bool useRAG = false;
-String? selectedKnowledgeBase;
-List<Map<String, dynamic>> knowledgeBases = [];
-
 List<String> images = [];
 Future<List<llama.Message>> getHistory([String? addToSystem]) async {
-  var system = prefs?.getString("system") ?? "You are a helpful assistant";
+  var system = prefs?.getString("system") ??
+      "You are a helpful assistant. Your name is Baymin.";
   if (prefs!.getBool("noMarkdown") ?? false) {
     system +=
         "\nYou must not use markdown or any other formatting language in any way!";
@@ -90,24 +90,22 @@ List getHistoryString([String? uuid]) {
 }
 
 Future<String> getTitleAi(List history) async {
-  final generated = await ollamaClient
-      .generateChatCompletion(
-        request: llama.GenerateChatCompletionRequest(
-            model: model!,
-            messages: [
-              const llama.Message(
-                  role: llama.MessageRole.system,
-                  content:
-                      "Generate a three to six word title for the conversation provided by the user. If an object or person is very important in the conversation, put it in the title as well; keep the focus on the main subject. You must not put the assistant in the focus and you must not put the word 'assistant' in the title! Do preferably use title case. Use a formal tone, don't use dramatic words, like 'mystery' Use spaces between words, do not use camel case! You must not use markdown or any other formatting language! You must not use emojis or any other symbols! You must not use general clauses like 'assistance', 'help' or 'session' in your title! \n\n~~User Introduces Themselves~~ -> User Introduction\n~~User Asks for Help with a Problem~~ -> Problem Help\n~~User has a _**big**_ Problem~~ -> Big Problem"),
-              llama.Message(
-                  role: llama.MessageRole.user,
-                  content: "```\n${jsonEncode(history)}\n```")
-            ],
-            keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
-      )
-      .timeout(Duration(
-          seconds:
-              (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0)).round()));
+  final generated = await BayminClient.generateChatCompletion(
+    request: llama.GenerateChatCompletionRequest(
+        model: model!,
+        messages: [
+          const llama.Message(
+              role: llama.MessageRole.system,
+              content:
+                  "Generate a three to six word title for the conversation provided by the user. If an object or person is very important in the conversation, put it in the title as well; keep the focus on the main subject. You must not put the assistant in the focus and you must not put the word 'assistant' in the title! Do preferably use title case. Use a formal tone, don't use dramatic words, like 'mystery' Use spaces between words, do not use camel case! You must not use markdown or any other formatting language! You must not use emojis or any other symbols! You must not use general clauses like 'assistance', 'help' or 'session' in your title! \n\n~~User Introduces Themselves~~ -> User Introduction\n~~User Asks for Help with a Problem~~ -> Problem Help\n~~User has a _**big**_ Problem~~ -> Big Problem"),
+          llama.Message(
+              role: llama.MessageRole.user,
+              content: "```\n${jsonEncode(history)}\n```")
+        ],
+        keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
+  ).timeout(Duration(
+      seconds:
+          (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0)).round()));
   var title = generated.message.content;
   title = title.replaceAll("\n", " ");
 
@@ -169,7 +167,15 @@ Future<String> send(String value, BuildContext context, Function setState,
     sendable = false;
   });
 
-  if (host == null) {
+  // 修改检查逻辑
+  if (AppModeManager.isMultiAgentMode) {
+    // 多Agent模式不需要检查host
+    print('Using Multi-Agent mode');
+  } else if (AppModeManager.isInternetMode) {
+    // Internet模式不需要检查host
+    print('Using Internet mode');
+  } else if (host == null) {
+    // 只有Ollama模式才需要检查host
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(AppLocalizations.of(context)!.noHostSelected),
         showCloseIcon: true));
@@ -225,15 +231,23 @@ Future<String> send(String value, BuildContext context, Function setState,
   String text = "";
   String newId = const Uuid().v4();
 
-  // 判断是否使用多Agent系统
-  if (AppConfig.serverMode == 'multiagent') {
+  // 判断使用哪种模式
+  if (AppModeManager.isInternetMode) {
+    // 使用Internet模式
     try {
-      // 使用多Agent系统发送消息
-      final service = MultiAgentService();
+      final selectedModel = prefs?.getString('selected_internet_model');
+      if (selectedModel == null) {
+        throw Exception('No internet model selected');
+      }
       
-      // 构建消息列表（不包括刚刚添加的当前消息）
+      final storedKey = prefs?.getString(InternetChatService.getApiKeyStorageKey(selectedModel)) ?? '';
+      final apiKey = InternetChatService.getApiKey(selectedModel, storedKey);
+      if (apiKey.isEmpty) {
+        throw Exception('API key not configured');
+      }
+      
+      // 构建消息列表
       List<Map<String, String>> messageList = [];
-      // 跳过第一条消息（刚刚添加的当前消息）
       for (int i = 1; i < messages.length; i++) {
         var msg = messages[i];
         if (msg is types.TextMessage) {
@@ -243,30 +257,18 @@ Future<String> send(String value, BuildContext context, Function setState,
           });
         }
       }
-      
-      // 添加当前消息到列表末尾
       messageList.add({'role': 'user', 'content': value.trim()});
       
       // 发送请求
-      Map<String, dynamic> response;
-      if (useRAG && selectedKnowledgeBase != null) {
-        response = await service.sendRAGMessage(
-          messageList,
-          selectedKnowledgeBase!,
-          model: model,
-        );
-      } else {
-        response = await service.sendMessage(
-          messageList,
-          model: model,
-        );
-      }
+      final service = InternetChatService();
+      final response = await service.sendMessage(
+        modelId: selectedModel,
+        apiKey: apiKey,
+        messages: messageList,
+      );
       
       // 处理响应
-      final assistantMessage = response['choices'][0]['message'];
-      text = assistantMessage['content'];
-      
-      // 添加AI响应到消息列表
+      text = response['choices'][0]['message']['content'];
       messages.insert(
         0,
         types.TextMessage(
@@ -282,7 +284,6 @@ Future<String> send(String value, BuildContext context, Function setState,
       
       setState(() {});
       heavyHaptic();
-      
     } catch (e) {
       // 错误处理
       for (var i = 0; i < messages.length; i++) {
@@ -308,101 +309,213 @@ Future<String> send(String value, BuildContext context, Function setState,
         }
       });
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: $e'),
-          showCloseIcon: true));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), showCloseIcon: true));
+      return "";
+    }
+  } else if (AppModeManager.isMultiAgentMode) {
+    try {
+      // 使用多Agent系统发送消息
+      final service = MultiAgentService();
+
+      // 构建消息列表（不包括刚刚添加的当前消息）
+      List<Map<String, String>> messageList = [];
+      // 跳过第一条消息（刚刚添加的当前消息）
+      for (int i = 1; i < messages.length; i++) {
+        var msg = messages[i];
+        if (msg is types.TextMessage) {
+          messageList.insert(0, {
+            'role': msg.author == user ? 'user' : 'assistant',
+            'content': msg.text,
+          });
+        }
+      }
+
+      // 添加当前消息到列表末尾
+      messageList.add({'role': 'user', 'content': value.trim()});
+
+      // 发送请求
+      Map<String, dynamic> response;
+      if (useRAG && selectedKnowledgeBase != null) {
+        // 检查是否是本地知识库
+        final unifiedService = UnifiedKnowledgeBaseService();
+        final allKbs = await unifiedService.getAllKnowledgeBases();
+        final selectedKb = allKbs.firstWhere(
+          (kb) => kb['id'] == selectedKnowledgeBase,
+          orElse: () => {},
+        );
+
+        if (selectedKb['location'] == 'local') {
+          // 使用本地RAG
+          final localRagService = LocalRAGService();
+          text = await localRagService.chatWithLocalRAG(
+            query: value.trim(),
+            knowledgeBaseId: selectedKnowledgeBase!,
+            model: model,
+          );
+
+          // 创建响应格式以保持一致性
+          response = {
+            'choices': [
+              {
+                'message': {
+                  'content': text,
+                  'role': 'assistant',
+                }
+              }
+            ]
+          };
+        } else {
+          // 使用服务器RAG
+          response = await service.sendRAGMessage(
+            messageList,
+            selectedKnowledgeBase!,
+            model: model,
+          );
+        }
+      } else {
+        response = await service.sendMessage(
+          messageList,
+          model: model,
+        );
+      }
+
+      // 处理响应
+      final assistantMessage = response['choices'][0]['message'];
+      text = assistantMessage['content'];
+
+      // 添加AI响应到消息列表
+      messages.insert(
+        0,
+        types.TextMessage(
+          author: assistant,
+          id: newId,
+          text: text,
+        ),
+      );
+
+      if (onStream != null) {
+        onStream(text, true);
+      }
+
+      setState(() {});
+      heavyHaptic();
+    } catch (e) {
+      // 错误处理
+      for (var i = 0; i < messages.length; i++) {
+        if (messages[i].id == newId) {
+          messages.removeAt(i);
+          break;
+        }
+      }
+      setState(() {
+        chatAllowed = true;
+        messages.removeAt(0);
+        if (messages.isEmpty) {
+          var tmp = (prefs!.getStringList("chats") ?? []);
+          for (var i = 0; i < tmp.length; i++) {
+            if (jsonDecode((prefs!.getStringList("chats") ?? [])[i])["uuid"] ==
+                chatUuid) {
+              tmp.removeAt(i);
+              prefs!.setStringList("chats", tmp);
+              break;
+            }
+          }
+          chatUuid = null;
+        }
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), showCloseIcon: true));
       return "";
     }
   } else {
     // 使用原有的Ollama系统
     try {
       if ((prefs!.getString("requestType") ?? "stream") == "stream") {
-      final stream = ollamaClient
-          .generateChatCompletionStream(
-            request: llama.GenerateChatCompletionRequest(
-                model: model!,
-                messages: history,
-                keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
-          )
-          .timeout(Duration(
-              seconds: (30.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
-                  .round()));
+        final stream = BayminClient.generateChatCompletionStream(
+          request: llama.GenerateChatCompletionRequest(
+              model: model!,
+              messages: history,
+              keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
+        ).timeout(Duration(
+            seconds: (30.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
+                .round()));
 
-      await for (final res in stream) {
-        text += (res.message.content);
-        for (var i = 0; i < messages.length; i++) {
-          if (messages[i].id == newId) {
-            messages.removeAt(i);
-            break;
+        await for (final res in stream) {
+          text += (res.message.content);
+          for (var i = 0; i < messages.length; i++) {
+            if (messages[i].id == newId) {
+              messages.removeAt(i);
+              break;
+            }
           }
+          if (chatAllowed) return "";
+          messages.insert(
+              0, types.TextMessage(author: assistant, id: newId, text: text));
+          //TODO: add functionality
+          //
+          // chatKey!.currentState!.scrollToMessage(messages[1].id,
+          //     preferPosition: AutoScrollPosition.end);
+          if (onStream != null) {
+            onStream(text, false);
+          }
+          setState(() {});
+          heavyHaptic();
         }
+      } else {
+        llama.GenerateChatCompletionResponse request;
+        request = await BayminClient.generateChatCompletion(
+          request: llama.GenerateChatCompletionRequest(
+              model: model!,
+              messages: history,
+              keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
+        ).timeout(Duration(
+            seconds: (30.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
+                .round()));
         if (chatAllowed) return "";
         messages.insert(
-            0, types.TextMessage(author: assistant, id: newId, text: text));
-        //TODO: add functionality
-        //
-        // chatKey!.currentState!.scrollToMessage(messages[1].id,
-        //     preferPosition: AutoScrollPosition.end);
-        if (onStream != null) {
-          onStream(text, false);
-        }
+            0,
+            types.TextMessage(
+                author: assistant, id: newId, text: request.message.content));
+        text = request.message.content;
         setState(() {});
         heavyHaptic();
       }
-    } else {
-      llama.GenerateChatCompletionResponse request;
-      request = await ollamaClient
-          .generateChatCompletion(
-            request: llama.GenerateChatCompletionRequest(
-                model: model!,
-                messages: history,
-                keepAlive: int.parse(prefs!.getString("keepAlive") ?? "300")),
-          )
-          .timeout(Duration(
-              seconds: (30.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
-                  .round()));
-      if (chatAllowed) return "";
-      messages.insert(
-          0,
-          types.TextMessage(
-              author: assistant, id: newId, text: request.message.content));
-      text = request.message.content;
-      setState(() {});
-      heavyHaptic();
-    }
-  } catch (e) {
-    for (var i = 0; i < messages.length; i++) {
-      if (messages[i].id == newId) {
-        messages.removeAt(i);
-        break;
-      }
-    }
-    setState(() {
-      chatAllowed = true;
-      messages.removeAt(0);
-      if (messages.isEmpty) {
-        var tmp = (prefs!.getStringList("chats") ?? []);
-        for (var i = 0; i < tmp.length; i++) {
-          if (jsonDecode((prefs!.getStringList("chats") ?? [])[i])["uuid"] ==
-              chatUuid) {
-            tmp.removeAt(i);
-            prefs!.setStringList("chats", tmp);
-            break;
-          }
+    } catch (e) {
+      for (var i = 0; i < messages.length; i++) {
+        if (messages[i].id == newId) {
+          messages.removeAt(i);
+          break;
         }
-        chatUuid = null;
       }
-    });
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            // ignore: use_build_context_synchronously
-            Text(AppLocalizations.of(context)!.settingsHostInvalid("timeout")),
-        showCloseIcon: true));
-    return "";
+      setState(() {
+        chatAllowed = true;
+        messages.removeAt(0);
+        if (messages.isEmpty) {
+          var tmp = (prefs!.getStringList("chats") ?? []);
+          for (var i = 0; i < tmp.length; i++) {
+            if (jsonDecode((prefs!.getStringList("chats") ?? [])[i])["uuid"] ==
+                chatUuid) {
+              tmp.removeAt(i);
+              prefs!.setStringList("chats", tmp);
+              break;
+            }
+          }
+          chatUuid = null;
+        }
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              // ignore: use_build_context_synchronously
+              Text(
+                  AppLocalizations.of(context)!.settingsHostInvalid("timeout")),
+          showCloseIcon: true));
+      return "";
+    }
   }
-  }
-  
+
   // 共同的收尾处理
   saveChat(chatUuid!, setState);
 
@@ -411,6 +524,7 @@ Future<String> send(String value, BuildContext context, Function setState,
       await setTitleAi(getHistoryString());
       setState(() {});
     }
+
     setTitle();
   }
 

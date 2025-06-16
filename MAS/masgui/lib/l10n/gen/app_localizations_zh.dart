@@ -183,7 +183,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsTitleInterface => '界面';
 
   @override
-  String get settingsDescriptionInterface => '修改 Ollama App的外观和行为';
+  String get settingsDescriptionInterface => '修改 Baymin的外观和行为';
 
   @override
   String get settingsTitleVoice => '语音';
@@ -201,7 +201,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsTitleAbout => '关于';
 
   @override
-  String get settingsDescriptionAbout => '检查更新并了解更多关于Ollama App的信息。';
+  String get settingsDescriptionAbout => '检查更新并了解更多关于Baymin的信息。';
 
   @override
   String get settingsSavedAutomatically => '设置已自动保存';
@@ -490,6 +490,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String settingsVersion(String version) {
-    return 'Ollama App v$version';
+    return 'Baymin v$version';
   }
 }

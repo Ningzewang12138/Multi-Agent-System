@@ -1,0 +1,520 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../services/tool_enhanced_chat_service.dart';
+import '../models/chat_models.dart';
+import '../models/tool_models.dart';
+
+/// 支持MCP工具调用的聊天界面
+class ToolEnhancedChatScreen extends StatefulWidget {
+  final String serverUrl;
+  
+  const ToolEnhancedChatScreen({
+    Key? key,
+    this.serverUrl = 'http://localhost:8000',
+  }) : super(key: key);
+  
+  @override
+  State<ToolEnhancedChatScreen> createState() => _ToolEnhancedChatScreenState();
+}
+
+class _ToolEnhancedChatScreenState extends State<ToolEnhancedChatScreen> {
+  late final ToolEnhancedChatService _chatService;
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final List<ChatMessage> _messages = [];
+  final List<Tool> _availableTools = [];
+  
+  bool _isLoading = false;
+  bool _useTools = true;
+  String? _currentSessionId;
+  List<WorkspaceFile> _workspaceFiles = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _chatService = ToolEnhancedChatService(baseUrl: widget.serverUrl);
+    _loadTools();
+  }
+  
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+  
+  Future<void> _loadTools() async {
+    try {
+      final tools = await _chatService.getAvailableTools();
+      setState(() {
+        _availableTools.clear();
+        _availableTools.addAll(tools);
+      });
+    } catch (e) {
+      _showError('Failed to load tools: $e');
+    }
+  }
+  
+  Future<void> _sendMessage() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty || _isLoading) return;
+    
+    _messageController.clear();
+    
+    // 添加用户消息
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'user',
+        content: message,
+        timestamp: DateTime.now(),
+      ));
+      _isLoading = true;
+    });
+    
+    _scrollToBottom();
+    
+    try {
+      // 发送消息
+      final response = await _chatService.sendMessage(
+        message: message,
+        history: _messages.length > 1 ? _messages.sublist(0, _messages.length - 1) : null,
+        useTools: _useTools,
+      );
+      
+      // 更新会话ID
+      if (response.sessionId != null) {
+        _currentSessionId = response.sessionId;
+      }
+      
+      // 添加助手响应
+      if (response.choices.isNotEmpty) {
+        setState(() {
+          _messages.add(response.choices.first.message);
+        });
+        
+        // 如果有工具执行，显示信息
+        if (response.toolExecution != null && response.toolExecution!.executed) {
+          _showToolExecution(response.toolExecution!);
+          _loadWorkspaceFiles();
+        }
+      }
+      
+    } catch (e) {
+      _showError('Failed to send message: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+      _scrollToBottom();
+    }
+  }
+  
+  Future<void> _sendMessageStream() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty || _isLoading) return;
+    
+    _messageController.clear();
+    
+    // 添加用户消息
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'user',
+        content: message,
+        timestamp: DateTime.now(),
+      ));
+      _isLoading = true;
+    });
+    
+    _scrollToBottom();
+    
+    // 准备助手消息
+    final assistantMessage = ChatMessage(
+      role: 'assistant',
+      content: '',
+      timestamp: DateTime.now(),
+    );
+    
+    setState(() {
+      _messages.add(assistantMessage);
+    });
+    
+    try {
+      // 发送消息并处理流式响应
+      await for (final event in _chatService.sendMessageStream(
+        message: message,
+        history: _messages.length > 2 ? _messages.sublist(0, _messages.length - 2) : null,
+        useTools: _useTools,
+      )) {
+        if (event is ContentEvent) {
+          setState(() {
+            _messages[_messages.length - 1] = ChatMessage(
+              role: 'assistant',
+              content: _messages.last.content + event.content,
+              timestamp: _messages.last.timestamp,
+            );
+          });
+          _scrollToBottom();
+        } else if (event is ToolExecutionEvent) {
+          _showToolExecution(ToolExecution(
+            executed: event.executed,
+            toolsCalled: event.toolsCalled,
+            sessionId: event.sessionId,
+            workspacePath: event.workspacePath,
+          ));
+          _loadWorkspaceFiles();
+        }
+      }
+    } catch (e) {
+      _showError('Failed to send message: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  
+  Future<void> _loadWorkspaceFiles() async {
+    if (_currentSessionId == null) return;
+    
+    try {
+      final files = await _chatService.getWorkspaceFiles();
+      setState(() {
+        _workspaceFiles = files;
+      });
+    } catch (e) {
+      print('Failed to load workspace files: $e');
+    }
+  }
+  
+  void _showToolExecution(ToolExecution execution) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '🔧 Tools executed: ${execution.toolsCalled.join(', ')}',
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+  
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+  
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+  
+  void _showExampleCommands() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Example Commands'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildExample('Create a file:', 'Create a file named notes.txt with content "My notes"'),
+              _buildExample('List files:', 'List all files in the current directory'),
+              _buildExample('Read a file:', 'Read the file notes.txt'),
+              _buildExample('Create JSON:', 'Create config.json with content \'{"key": "value"}\''),
+              _buildExample('Delete a file:', 'Delete the file notes.txt'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildExample(String title, String command) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          InkWell(
+            onTap: () {
+              _messageController.text = command;
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                command,
+                style: const TextStyle(fontFamily: 'monospace'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('MCP Tool-Enhanced Chat'),
+        actions: [
+          // 工具开关
+          Row(
+            children: [
+              const Text('Tools'),
+              Switch(
+                value: _useTools,
+                onChanged: (value) {
+                  setState(() {
+                    _useTools = value;
+                  });
+                },
+              ),
+            ],
+          ),
+          // 示例按钮
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: _showExampleCommands,
+          ),
+          // 重置按钮
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _messages.clear();
+                _workspaceFiles.clear();
+                _currentSessionId = null;
+              });
+              _chatService.resetSession();
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // 工具状态栏
+          if (_useTools)
+            Container(
+              padding: const EdgeInsets.all(8),
+              color: Colors.blue[50],
+              child: Row(
+                children: [
+                  const Icon(Icons.build, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${_availableTools.length} tools available',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const Spacer(),
+                  if (_currentSessionId != null)
+                    Text(
+                      'Session: ${_currentSessionId!.substring(0, 8)}...',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                ],
+              ),
+            ),
+          
+          // 聊天消息区域
+          Expanded(
+            child: Row(
+              children: [
+                // 主聊天区域
+                Expanded(
+                  flex: 3,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return _MessageBubble(message: message);
+                    },
+                  ),
+                ),
+                
+                // 工作空间文件列表
+                if (_workspaceFiles.isNotEmpty)
+                  Container(
+                    width: 200,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          color: Colors.grey[100],
+                          child: const Text(
+                            'Workspace Files',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(8),
+                            itemCount: _workspaceFiles.length,
+                            itemBuilder: (context, index) {
+                              final file = _workspaceFiles[index];
+                              return ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  file.isDirectory ? Icons.folder : Icons.insert_drive_file,
+                                  size: 16,
+                                ),
+                                title: Text(
+                                  file.name,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                subtitle: Text(
+                                  '${file.size} bytes',
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                                onTap: () async {
+                                  if (!file.isDirectory) {
+                                    _messageController.text = 'Read the file ${file.name}';
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          
+          // 输入区域
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: _useTools 
+                          ? 'Type a message or command (e.g., "Create a file named test.txt with content Hello")'
+                          : 'Type a message...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send),
+                  onPressed: _isLoading ? null : _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 消息气泡组件
+class _MessageBubble extends StatelessWidget {
+  final ChatMessage message;
+  
+  const _MessageBubble({required this.message});
+  
+  @override
+  Widget build(BuildContext context) {
+    final isUser = message.role == 'user';
+    
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.7,
+        ),
+        decoration: BoxDecoration(
+          color: isUser ? Colors.blue : Colors.grey[200],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message.content,
+              style: TextStyle(
+                color: isUser ? Colors.white : Colors.black87,
+              ),
+            ),
+            if (message.toolCalls != null && message.toolCalls!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Wrap(
+                  spacing: 4,
+                  children: message.toolCalls!.map((tc) => Chip(
+                    label: Text(
+                      tc.function.name,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    backgroundColor: Colors.green[100],
+                    padding: EdgeInsets.zero,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  )).toList(),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

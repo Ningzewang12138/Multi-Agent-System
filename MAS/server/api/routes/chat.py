@@ -1,14 +1,36 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import json
 import sys
 import os
 import logging
 import time
+import asyncio
 from server.services.vector_db_service import VectorDBService
 from server.services.embedding_manager import EmbeddingManager
+from server.mcp.manager import mcp_manager, ToolCall
+# 使用极简版本
+try:
+    from server.services.tool_enhanced_chat_service_minimal import ToolEnhancedChatService
+except ImportError:
+    try:
+        from server.services.tool_enhanced_chat_service_intent_fixed import ToolEnhancedChatService
+    except ImportError:
+        try:
+            from server.services.tool_enhanced_chat_service_intent import ToolEnhancedChatService
+        except ImportError:
+            try:
+                from server.services.tool_enhanced_chat_service_ultra_simple import ToolEnhancedChatService
+            except ImportError:
+                try:
+                    from server.services.tool_enhanced_chat_service_simple import ToolEnhancedChatService
+                except ImportError:
+                    try:
+                        from server.services.tool_enhanced_chat_service_v2 import ToolEnhancedChatService
+                    except ImportError:
+                        from server.services.tool_enhanced_chat_service import ToolEnhancedChatService
 
 
 # 添加路径
@@ -33,18 +55,31 @@ class ChatRequest(BaseModel):
     stream: bool = False
     temperature: float = 0.7
     max_tokens: Optional[int] = None
+    tools: Optional[List[Dict[str, Any]]] = Field(default=None, description="Available tools in OpenAI format")
+    tool_choice: Optional[str] = Field(default="auto", description="Tool choice strategy: auto, none, or specific tool name")
+    session_id: Optional[str] = Field(default=None, description="Session ID for workspace management")
 
 def get_ollama_service(request: Request) -> OllamaService:
     """从 FastAPI 应用状态获取 OllamaService"""
     return request.app.state.services.ollama_service
 
+def get_tool_chat_service(request: Request) -> ToolEnhancedChatService:
+    """获取工具增强的聊天服务"""
+    ollama_service = request.app.state.services.ollama_service
+    if not hasattr(request.app.state.services, 'tool_chat_service'):
+        request.app.state.services.tool_chat_service = ToolEnhancedChatService(
+            ollama_service
+        )
+    return request.app.state.services.tool_chat_service
+
 @router.post("/completions")
 async def chat_completions(
     request: Request,
     chat_request: ChatRequest,
-    ollama: OllamaService = Depends(get_ollama_service)
+    ollama: OllamaService = Depends(get_ollama_service),
+    tool_chat: ToolEnhancedChatService = Depends(get_tool_chat_service)
 ):
-    """处理聊天请求"""
+    """处理聊天请求（支持工具调用）"""
     if ollama is None:
         logger.error("OllamaService is not initialized")
         raise HTTPException(status_code=503, detail="Service not available")
@@ -56,7 +91,58 @@ async def chat_completions(
         if not model:
             raise HTTPException(status_code=503, detail="No models available")
         logger.info(f"No model specified, using default: {model}")
+    
+    # 检查是否需要工具调用
+    if chat_request.tools and len(chat_request.tools) > 0:
+        # 使用工具增强的聊天服务
+        logger.info(f"Processing chat with {len(chat_request.tools)} tools available")
         
+        try:
+            messages = [{"role": msg.role, "content": msg.content} 
+                       for msg in chat_request.messages]
+            
+            if chat_request.stream:
+                # 流式响应
+                async def generate():
+                    async for chunk in tool_chat.chat_with_tools_stream(
+                        model=model,
+                        messages=messages,
+                        tools=chat_request.tools,
+                        tool_choice=chat_request.tool_choice,
+                        temperature=chat_request.temperature,
+                        session_id=chat_request.session_id,
+                        device_id=request.headers.get('X-Device-ID', 'default'),
+                        max_tokens=chat_request.max_tokens
+                    ):
+                        yield chunk
+                
+                return StreamingResponse(
+                    generate(),
+                    media_type="text/event-stream",
+                    headers={
+                        'Cache-Control': 'no-cache',
+                        'Connection': 'keep-alive',
+                    }
+                )
+            else:
+                # 非流式响应
+                result = await tool_chat.chat_with_tools(
+                    model=model,
+                    messages=messages,
+                    tools=chat_request.tools,
+                    tool_choice=chat_request.tool_choice,
+                    temperature=chat_request.temperature,
+                    session_id=chat_request.session_id,
+                    device_id=request.headers.get('X-Device-ID', 'default'),
+                    max_tokens=chat_request.max_tokens
+                )
+                return result
+                
+        except Exception as e:
+            logger.error(f"Tool-enhanced chat error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    # 原有的聊天逻辑（不带工具）
     try:
         messages = [{"role": msg.role, "content": msg.content} 
                    for msg in chat_request.messages]

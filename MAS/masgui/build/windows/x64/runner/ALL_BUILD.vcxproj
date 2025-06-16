@@ -141,9 +141,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\ollama.vcxproj">
-      <Project>{9E5E4855-713A-3930-B332-F0E087B9C9ED}</Project>
-      <Name>ollama</Name>
+    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\Baymin.vcxproj">
+      <Project>{EFFCB2B4-F320-3B69-A1E2-BCAE95AB9B05}</Project>
+      <Name>Baymin</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

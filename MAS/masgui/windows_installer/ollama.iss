@@ -1,9 +1,8 @@
-; Inno Setup script for Ollama App, created by JHubi1
+; Inno Setup script for Baymin, created by JHubi1
 
-#define AppName "Ollama App"
-#define AppPublisher "JHubi1"
-#define AppURL "https://jhubi1.com"
-#define AppExeName "ollama.exe"
+#define AppName "Baymin"
+#define AppPublisher "AlexLeo12138"
+#define AppExeName "Baymin.exe"
 
 ; #define AppVersion "1.0.1"
 ; #define AppArchitectures "x64"
@@ -112,7 +111,7 @@ procedure CurUninstallStepChanged (CurUninstallStep: TUninstallStep);
             begin
                 mres := SuppressibleMsgBox('Do you want to Remove settings?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDYES)
                 if mres = IDYES then
-                    DelTree(ExpandConstant('{userappdata}\JHubi1\Ollama App'), True, True, True);
+                    DelTree(ExpandConstant('{userappdata}\JHubi1\Baymin'), True, True, True);
         end;
     end;
 end;

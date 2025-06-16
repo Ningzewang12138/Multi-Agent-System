@@ -74,8 +74,7 @@ class _ScreenSettingsExportState extends State<ScreenSettingsExport> {
                             path = (await file_selector
                                     .getSaveLocation(acceptedTypeGroups: [
                               const file_selector.XTypeGroup(
-                                  label: "Ollama App File",
-                                  extensions: ["json"])
+                                  label: "Baymin File", extensions: ["json"])
                             ], suggestedName: name))
                                 ?.path;
                           } catch (_) {
@@ -138,7 +137,7 @@ class _ScreenSettingsExportState extends State<ScreenSettingsExport> {
                                                         const file_selector
                                                             .XTypeGroup(
                                                             label:
-                                                                "Ollama App File",
+                                                                "Baymin File",
                                                             extensions: [
                                                               "json"
                                                             ])

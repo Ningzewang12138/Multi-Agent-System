@@ -48,7 +48,8 @@ class DocumentProcessor:
             metadata = {
                 "source": str(path),
                 "filename": path.name,
-                "extension": extension,
+                "original_filename": path.name,  # 保存原始文件名
+                "extension": extension[1:] if extension else "unknown",  # 移除点号
                 "size": path.stat().st_size,
                 "modified_at": path.stat().st_mtime
             }

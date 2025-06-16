@@ -14,6 +14,15 @@
 # EXTERNAL cache entries
 ########################
 
+//Value Computed by CMake
+Baymin_app_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64
+
+//Value Computed by CMake
+Baymin_app_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+Baymin_app_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows
+
 //Path to a program.
 CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lib.exe
 
@@ -56,7 +65,7 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/CMakeFiles/pkgRedirects
 
 //...
-CMAKE_INSTALL_PREFIX:PATH=$<TARGET_FILE_DIR:ollama>
+CMAKE_INSTALL_PREFIX:PATH=$<TARGET_FILE_DIR:Baymin>
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe
@@ -91,7 +100,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=ollama_app
+CMAKE_PROJECT_NAME:STATIC=Baymin_app
 
 //RC compiler
 CMAKE_RC_COMPILER:FILEPATH=rc
@@ -196,6 +205,15 @@ bitsdojo_window_windows_IS_TOP_LEVEL:STATIC=OFF
 bitsdojo_window_windows_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/bitsdojo_window_windows/windows
 
 //Value Computed by CMake
+connectivity_plus_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/connectivity_plus
+
+//Value Computed by CMake
+connectivity_plus_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+connectivity_plus_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/connectivity_plus/windows
+
+//Value Computed by CMake
 dynamic_color_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/dynamic_color
 
 //Value Computed by CMake
@@ -223,15 +241,6 @@ flutter_tts_IS_TOP_LEVEL:STATIC=OFF
 flutter_tts_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/windows
 
 //Value Computed by CMake
-ollama_app_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64
-
-//Value Computed by CMake
-ollama_app_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-ollama_app_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows
-
-//Value Computed by CMake
 permission_handler_windows_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows
 
 //Value Computed by CMake
@@ -248,6 +257,15 @@ runner_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 runner_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/runner
+
+//Value Computed by CMake
+share_plus_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/share_plus
+
+//Value Computed by CMake
+share_plus_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+share_plus_SOURCE_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/share_plus/windows
 
 //Value Computed by CMake
 url_launcher_windows_BINARY_DIR:STATIC=D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/url_launcher_windows
@@ -340,7 +358,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=10
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //noop for ranlib

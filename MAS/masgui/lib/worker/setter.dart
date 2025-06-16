@@ -19,6 +19,10 @@ import 'package:ollama_dart/ollama_dart.dart' as llama;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
+import '../config/app_mode.dart';
+import '../services/internet/internet_chat_service.dart';
+import '../services/multi_agent_service.dart';
+import '../config/app_config.dart';
 
 void setModel(BuildContext context, Function setState) {
   List<String> models = [];
@@ -29,28 +33,97 @@ void setModel(BuildContext context, Function setState) {
   int addIndex = -1;
   bool loaded = false;
   Function? setModalState;
+  bool isMounted = true;  // 添加mounted标志
+  
+  // 安全的setState包装
+  void safeSetState(Function fn) {
+    if (isMounted) {
+      setState(fn);
+    }
+  }
+  
   desktopTitleVisible = false;
-  setState(() {});
+  safeSetState(() {});
+  
   void load() async {
     try {
-      var list = await ollamaClient.listModels().timeout(Duration(
-          seconds:
-              (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0)).round()));
-      for (var i = 0; i < list.models!.length; i++) {
-        models.add(list.models![i].model!.split(":")[0]);
-        modelsReal.add(list.models![i].model!);
-        modal.add((list.models![i].details!.families ?? []).contains("clip"));
+      if (AppModeManager.isInternetMode) {
+        // Internet模式 - 显示固定的模型列表
+        final internetModels = InternetChatService.getAvailableModels();
+        for (var m in internetModels) {
+          models.add(m['name'] as String);
+          modelsReal.add(m['id'] as String);
+          modal.add(false); // Internet模型不支持多模态
+        }
+        // Internet模式不支持添加模型
+        addIndex = -1;
+        
+        // 加载已选择的Internet模型
+        final savedModel = prefs?.getString('selected_internet_model');
+        if (savedModel != null) {
+          for (var i = 0; i < modelsReal.length; i++) {
+            if (modelsReal[i] == savedModel) {
+              usedIndex = i;
+              oldIndex = i;
+              break;
+            }
+          }
+        }
+        
+        // Internet模式直接设置loaded为true，不需要网络请求
+        loaded = true;
+        if (setModalState != null) {
+          setModalState!(() {});
+        }
+        return; // 重要：Internet模式不执行后续代码
+      } else if (AppModeManager.isMultiAgentMode) {
+        // Multi-Agent模式 - 从服务器获取模型列表
+        final service = MultiAgentService();
+        final modelList = await service.getModels();
+        for (var m in modelList) {
+          models.add(m);
+          modelsReal.add(m);
+          modal.add(false); // 暂不支持多模态检测
+        }
+        // Multi-Agent模式不支持添加模型
+        addIndex = -1;
+      } else {
+        // Ollama模式 - 保持原有逻辑
+        var list = await BayminClient.listModels().timeout(Duration(
+            seconds:
+                (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0)).round()));
+        for (var i = 0; i < list.models!.length; i++) {
+          models.add(list.models![i].model!.split(":")[0]);
+          modelsReal.add(list.models![i].model!);
+          modal.add((list.models![i].details!.families ?? []).contains("clip"));
+        }
+        addIndex = models.length;
+        // ignore: use_build_context_synchronously
+        models.add(AppLocalizations.of(context)!.modelDialogAddModel);
+        // ignore: use_build_context_synchronously
+        modelsReal.add(AppLocalizations.of(context)!.modelDialogAddModel);
+        modal.add(false);
       }
-      addIndex = models.length;
-      // ignore: use_build_context_synchronously
-      models.add(AppLocalizations.of(context)!.modelDialogAddModel);
-      // ignore: use_build_context_synchronously
-      modelsReal.add(AppLocalizations.of(context)!.modelDialogAddModel);
-      modal.add(false);
-      for (var i = 0; i < modelsReal.length; i++) {
-        if (modelsReal[i] == model) {
-          usedIndex = i;
-          oldIndex = usedIndex;
+      // 如果是Internet模式，加载选中的模型
+      if (AppModeManager.isInternetMode) {
+        final savedModel = prefs?.getString('selected_internet_model');
+        if (savedModel != null) {
+          // 找到对应的模型索引
+          for (var i = 0; i < modelsReal.length; i++) {
+            if (modelsReal[i] == savedModel) {
+              usedIndex = i;
+              oldIndex = i;
+              break;
+            }
+          }
+        }
+      } else {
+        // 原有的逻辑：查找当前模型
+        for (var i = 0; i < modelsReal.length; i++) {
+          if (modelsReal[i] == model) {
+            usedIndex = i;
+            oldIndex = usedIndex;
+          }
         }
       }
       if (prefs!.getBool("modelTags") == null) {
@@ -65,19 +138,22 @@ void setModel(BuildContext context, Function setState) {
         }
       }
       loaded = true;
-      setModalState!(() {});
+      if (setModalState != null) {
+        setModalState!(() {});
+      }
     } catch (_) {
-      setState(() {
-        desktopTitleVisible = true;
-      });
+      desktopTitleVisible = true;
+      safeSetState(() {});
       // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              // ignore: use_build_context_synchronously
-              AppLocalizations.of(context)!.settingsHostInvalid("timeout")),
-          showCloseIcon: true));
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                // ignore: use_build_context_synchronously
+                AppLocalizations.of(context)!.settingsHostInvalid("timeout")),
+            showCloseIcon: true));
+      }
     }
   }
 
@@ -93,6 +169,7 @@ void setModel(BuildContext context, Function setState) {
         onPopInvokedWithResult: (didPop, result) async {
           if (!loaded) return;
           loaded = false;
+          isMounted = false;  // 标记为未挂载
           bool preload = false;
           if (usedIndex >= 0 && modelsReal[usedIndex] != model) {
             preload = true;
@@ -106,16 +183,28 @@ void setModel(BuildContext context, Function setState) {
           chatAllowed = !(model == null);
           multimodal = (usedIndex >= 0) ? modal[usedIndex] : false;
           if (model != null) {
-            prefs?.setString("model", model!);
+            // 根据模式保存不同的模型选择
+            if (AppModeManager.isInternetMode) {
+              prefs?.setString('selected_internet_model', model!);
+              // Internet模式不设置普通的model键
+            } else {
+              prefs?.setString("model", model!);
+            }
           } else {
-            prefs?.remove("model");
+            if (AppModeManager.isInternetMode) {
+              prefs?.remove('selected_internet_model');
+            } else {
+              prefs?.remove("model");
+            }
           }
           prefs?.setBool("multimodal", multimodal);
 
           if (model != null &&
               preload &&
               int.parse(prefs!.getString("keepAlive") ?? "300") != 0 &&
-              (prefs!.getBool("preloadModel") ?? true)) {
+              (prefs!.getBool("preloadModel") ?? true) &&
+              !AppModeManager.isInternetMode &&
+              !AppModeManager.isMultiAgentMode) {  // Internet模式和Multi-Agent模式都不需要预加载
             setLocalState(() {});
             try {
               // don't use llama client, package doesn't support just loading without content
@@ -139,27 +228,30 @@ void setModel(BuildContext context, Function setState) {
                           .round()));
             } catch (_) {
               // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  // ignore: use_build_context_synchronously
-                  content: Text(AppLocalizations.of(context)!
-                      .settingsHostInvalid("timeout")),
-                  showCloseIcon: true));
-              setState(() {
-                model = null;
-                chatAllowed = false;
-              });
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    // ignore: use_build_context_synchronously
+                    content: Text(AppLocalizations.of(context)!
+                        .settingsHostInvalid("timeout")),
+                    showCloseIcon: true));
+              }
+              model = null;
+              chatAllowed = false;
+              safeSetState(() {});
             }
-            setState(() {
-              desktopTitleVisible = true;
-            });
+            desktopTitleVisible = true;
+            safeSetState(() {});
             // ignore: use_build_context_synchronously
-            Navigator.of(context).pop();
-          } else {
-            setState(() {
-              desktopTitleVisible = true;
-            });
-            try {
+            if (context.mounted) {
               Navigator.of(context).pop();
+            }
+          } else {
+            desktopTitleVisible = true;
+            safeSetState(() {});
+            try {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             } catch (_) {}
           }
         },
@@ -194,17 +286,27 @@ void setModel(BuildContext context, Function setState) {
                                     label: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(models[index]),
+                                          Flexible(
+                                            child: Text(
+                                              models[index],
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                           ((prefs!.getBool("modelTags") ??
                                                       false) &&
                                                   modelsReal[index]
                                                           .split(":")
                                                           .length >
                                                       1)
-                                              ? Text(
-                                                  ":${modelsReal[index].split(":")[1]}",
-                                                  style: const TextStyle(
-                                                      color: Colors.grey))
+                                              ? Flexible(
+                                                  child: Text(
+                                                    ":${modelsReal[index].split(":")[1]}",
+                                                    style: const TextStyle(
+                                                        color: Colors.grey),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                )
                                               : const SizedBox.shrink()
                                         ]),
                                     selected: usedIndex == index,
@@ -212,13 +314,15 @@ void setModel(BuildContext context, Function setState) {
                                         ? null
                                         : (addIndex == index)
                                             ? const Icon(Icons.add_rounded)
-                                            : ((recommendedModels
-                                                    .contains(models[index]))
-                                                ? const Icon(Icons.star_rounded)
-                                                : ((modal[index])
-                                                    ? const Icon(Icons
-                                                        .collections_rounded)
-                                                    : null)),
+                                            : ((AppModeManager.isInternetMode)
+                                                ? const Icon(Icons.language) // Internet模式显示地球图标
+                                                : ((recommendedModels
+                                                        .contains(models[index]))
+                                                    ? const Icon(Icons.star_rounded)
+                                                    : ((modal[index])
+                                                        ? const Icon(Icons
+                                                            .collections_rounded)
+                                                        : null))),
                                     checkmarkColor: (usedIndex == index &&
                                             !(prefs?.getBool(
                                                     "useDeviceTheme") ??
@@ -260,7 +364,7 @@ void setModel(BuildContext context, Function setState) {
                                         Navigator.of(context).pop();
                                         addModel(context, setState);
                                       }
-                                      if (!chatAllowed && model != null) {
+                                      if (!chatAllowed && model != null && !AppModeManager.isInternetMode) {
                                         return;
                                       }
                                       setLocalState(() {
@@ -292,10 +396,17 @@ void setModel(BuildContext context, Function setState) {
                     : Alignment.topCenter,
                 child: content),
           );
-        });
+        }).then((_) {
+      // 对话框关闭时设置为未挂载
+      isMounted = false;
+    });
   } else {
     showModalBottomSheet(
-        context: context, builder: (context) => Container(child: content));
+        context: context, 
+        builder: (context) => Container(child: content)).then((_) {
+      // 对话框关闭时设置为未挂载
+      isMounted = false;
+    });
   }
 }
 
@@ -333,7 +444,7 @@ void addModel(BuildContext context, Function setState) async {
       ratelimitError = false;
       alreadyExists = false;
       try {
-        var request = await ollamaClient.listModels().timeout(Duration(
+        var request = await BayminClient.listModels().timeout(Duration(
             seconds: (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
                 .round()));
         for (var element in request.models!) {
@@ -479,8 +590,8 @@ void addModel(BuildContext context, Function setState) async {
         });
       });
   try {
-    final stream = ollamaClient
-        .pullModelStream(request: llama.PullModelRequest(model: requestedModel))
+    final stream = BayminClient.pullModelStream(
+            request: llama.PullModelRequest(model: requestedModel))
         .timeout(Duration(
             seconds: (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0))
                 .round()));
@@ -509,7 +620,7 @@ void addModel(BuildContext context, Function setState) async {
     }
     bool exists = false;
     try {
-      var request = await ollamaClient.listModels().timeout(Duration(
+      var request = await BayminClient.listModels().timeout(Duration(
           seconds:
               (10.0 * (prefs!.getDouble("timeoutMultiplier") ?? 1.0)).round()));
       for (var element in request.models!) {
@@ -609,7 +720,8 @@ void saveChat(String uuid, Function setState) async {
       });
     }
   } else {
-    var system = prefs?.getString("system") ?? "You are a helpful assistant";
+    var system = prefs?.getString("system") ??
+        "You are a helpful assistant. Your name is Baymin.";
     if (prefs!.getBool("noMarkdown") ?? false) {
       system +=
           " You must not use markdown or any other formatting language in any way!";

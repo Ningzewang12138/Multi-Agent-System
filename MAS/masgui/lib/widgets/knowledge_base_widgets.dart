@@ -1,0 +1,341 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import '../services/multi_agent_service.dart';
+
+class KnowledgeBaseExportImportDialog extends StatefulWidget {
+  final Map<String, dynamic> knowledgeBase;
+  
+  const KnowledgeBaseExportImportDialog({
+    super.key,
+    required this.knowledgeBase,
+  });
+
+  @override
+  State<KnowledgeBaseExportImportDialog> createState() => _KnowledgeBaseExportImportDialogState();
+}
+
+class _KnowledgeBaseExportImportDialogState extends State<KnowledgeBaseExportImportDialog> {
+  final MultiAgentService _service = MultiAgentService();
+  bool isExporting = false;
+  bool isImporting = false;
+
+  Future<void> _exportKnowledgeBase() async {
+    setState(() => isExporting = true);
+    
+    try {
+      // 获取所有文档
+      final documents = await _service.getDocuments(widget.knowledgeBase['id']);
+      
+      // 创建导出数据
+      final exportData = {
+        'knowledge_base': {
+          'name': widget.knowledgeBase['name'],
+          'description': widget.knowledgeBase['description'],
+          'exported_at': DateTime.now().toIso8601String(),
+        },
+        'documents': documents.map((doc) => {
+          'content': doc['content'],
+          'metadata': doc['metadata'],
+        }).toList(),
+      };
+      
+      // 保存到文件
+      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+      final fileName = '${widget.knowledgeBase['name'].replaceAll(' ', '_')}_export.json';
+      
+      // 选择保存位置
+      String? outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Knowledge Base Export',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      
+      if (outputPath != null) {
+        final file = File(outputPath);
+        await file.writeAsString(jsonString);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Knowledge base exported successfully to $outputPath')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e')),
+        );
+      }
+    } finally {
+      setState(() => isExporting = false);
+    }
+  }
+
+  Future<void> _importToKnowledgeBase() async {
+    // 选择文件
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    
+    if (result != null && result.files.single.path != null) {
+      setState(() => isImporting = true);
+      
+      try {
+        // 读取文件
+        final file = File(result.files.single.path!);
+        final jsonString = await file.readAsString();
+        final importData = json.decode(jsonString);
+        
+        // 验证数据格式
+        if (importData['documents'] == null || importData['documents'] is! List) {
+          throw Exception('Invalid import file format');
+        }
+        
+        int successCount = 0;
+        int failCount = 0;
+        
+        // 导入文档
+        for (var doc in importData['documents']) {
+          try {
+            await _service.addDocument(
+              widget.knowledgeBase['id'],
+              doc['content'],
+              metadata: doc['metadata'] ?? {},
+            );
+            successCount++;
+          } catch (e) {
+            failCount++;
+            print('Failed to import document: $e');
+          }
+        }
+        
+        if (mounted) {
+          String message = 'Import completed: ';
+          if (successCount > 0) {
+            message += '$successCount documents imported successfully. ';
+          }
+          if (failCount > 0) {
+            message += '$failCount documents failed to import.';
+          }
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+          
+          Navigator.pop(context, true); // 返回true表示需要刷新
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Import failed: $e')),
+          );
+        }
+      } finally {
+        setState(() => isImporting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Import/Export Knowledge Base'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Export your knowledge base to share with others or create a backup. Import documents from another knowledge base export.',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 24),
+          
+          // Export button
+          OutlinedButton.icon(
+            onPressed: isExporting ? null : _exportKnowledgeBase,
+            icon: isExporting 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.download),
+            label: Text(isExporting ? 'Exporting...' : 'Export Knowledge Base'),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Import button
+          OutlinedButton.icon(
+            onPressed: isImporting ? null : _importToKnowledgeBase,
+            icon: isImporting 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.upload),
+            label: Text(isImporting ? 'Importing...' : 'Import Documents'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: (isExporting || isImporting) ? null : () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+// 知识库统计信息组件
+class KnowledgeBaseStats extends StatelessWidget {
+  final Map<String, dynamic> knowledgeBase;
+  final List<Map<String, dynamic>> documents;
+
+  const KnowledgeBaseStats({
+    super.key,
+    required this.knowledgeBase,
+    required this.documents,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // 计算统计信息 - 使用类型安全的方式
+    int totalCharacters = 0;
+    int totalWords = 0;
+    Map<String, int> fileTypeCounts = {};
+    
+    for (var doc in documents) {
+      final String content = (doc['content'] ?? '').toString();
+      final int contentLength = content.length;
+      totalCharacters = totalCharacters + contentLength;
+      
+      // 计算单词数 - 显式类型转换
+      final List<String> words = content.split(RegExp(r'\s+'));
+      final Iterable<String> nonEmptyWords = words.where((word) => word.isNotEmpty);
+      final int wordCount = nonEmptyWords.length;
+      totalWords = totalWords + wordCount;
+      
+      final String fileType = (doc['metadata']?['file_type'] ?? 'text').toString();
+      final int currentCount = fileTypeCounts[fileType] ?? 0;
+      fileTypeCounts[fileType] = currentCount + 1;
+    }
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Knowledge Base Statistics',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // 文档数量
+            _buildStatRow(
+              context,
+              icon: Icons.article,
+              label: 'Total Documents',
+              value: documents.length.toString(),
+            ),
+            const SizedBox(height: 8),
+            
+            // 总字数
+            _buildStatRow(
+              context,
+              icon: Icons.text_fields,
+              label: 'Total Words',
+              value: _formatNumber(totalWords),
+            ),
+            const SizedBox(height: 8),
+            
+            // 总字符数
+            _buildStatRow(
+              context,
+              icon: Icons.format_size,
+              label: 'Total Characters',
+              value: _formatNumber(totalCharacters),
+            ),
+            
+            if (fileTypeCounts.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Document Types',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              ...fileTypeCounts.entries.map((entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      _getFileTypeIcon(entry.key),
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text('${entry.key.toUpperCase()}: ${entry.value}'),
+                  ],
+                ),
+              )).toList(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatRow(BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(label),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  String _formatNumber(int number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    }
+    return number.toString();
+  }
+
+  IconData _getFileTypeIcon(String fileType) {
+    switch (fileType.toLowerCase()) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'txt':
+        return Icons.text_snippet;
+      case 'md':
+        return Icons.code;
+      default:
+        return Icons.article;
+    }
+  }
+}

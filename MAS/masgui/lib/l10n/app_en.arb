@@ -1,6 +1,6 @@
 {
     "@@locale": "en",
-    "appTitle": "Brigitte",
+    "appTitle": "Baymin",
     "@appTitle": {
         "description": "Title of the application",
         "context": "Visible in the side bar"
@@ -175,7 +175,7 @@
         "description": "Title of the allow proxy dialog",
         "context": "Visible in the model dialog"
     },
-    "modelDialogAddAllowanceDescription": "Brigitte must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you're using the web client, we can't do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won't be added.",
+    "modelDialogAddAllowanceDescription": "Baymin must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you're using the web client, we can't do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won't be added.",
     "@modelDialogAddAllowanceDescription": {
         "description": "Description of the allow proxy dialog",
         "context": "Visible in the model dialog"
@@ -293,7 +293,7 @@
         "description": "Title of the interface settings section",
         "context": "Visible in the settings view"
     },
-    "settingsDescriptionInterface": "Edit how Brigitte looks and behaves.",
+    "settingsDescriptionInterface": "Edit how Baymin looks and behaves.",
     "@settingsDescriptionInterface": {
         "description": "Description of the interface settings section",
         "context": "Visible in the settings view"
@@ -323,7 +323,7 @@
         "description": "Title of the about settings section",
         "context": "Visible in the settings view"
     },
-    "settingsDescriptionAbout": "Learn more about Brigitte.",
+    "settingsDescriptionAbout": "Learn more about Baymin.",
     "@settingsDescriptionAbout": {
         "description": "Description of the about settings section",
         "context": "Visible in the settings view"
@@ -566,7 +566,7 @@
         "description": "Text displayed as description for device theme option",
         "context": "Visible in the settings view"
     },
-    "settingsThemeOllama": "Brigitte",
+    "settingsThemeOllama": "Baymin",
     "@settingsThemeOllama": {
         "description": "Text displayed as description for Ollama theme option",
         "context": "Visible in the settings view"
@@ -772,7 +772,7 @@
         "description": "Text displayed as description for licenses button",
         "context": "Visible in the settings view"
     },
-    "settingsVersion": "Brigitte v{version}",
+    "settingsVersion": "Baymin v{version}",
     "@settingsVersion": {
         "description": "Text displayed as description for version",
         "context": "Visible in the settings view",

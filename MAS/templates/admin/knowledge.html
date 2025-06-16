@@ -1,0 +1,255 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>Knowledge Base Management</h1>
+
+<div class="card">
+    <h2>All Knowledge Bases</h2>
+    <div style="margin-bottom: 1rem;">
+        <button class="button" onclick="showCreateDialog()">Create New</button>
+        <button class="button" onclick="loadKnowledgeBases()">Refresh</button>
+        <select id="filter-status" onchange="filterKnowledgeBases()" style="margin-left: 1rem; padding: 0.5rem;">
+            <option value="all">All</option>
+            <option value="published">Published Only</option>
+            <option value="draft">Drafts Only</option>
+        </select>
+    </div>
+    
+    <table id="kb-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Documents</th>
+                <th>Device</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="6" style="text-align: center;">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Knowledge Base Dialog -->
+<div id="create-dialog" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; min-width: 400px;">
+        <h2>Create Knowledge Base</h2>
+        <form id="create-form" onsubmit="createKnowledgeBase(event)">
+            <div style="margin-bottom: 1rem;">
+                <label for="kb-name">Name:</label><br>
+                <input type="text" id="kb-name" required style="width: 100%; padding: 0.5rem; margin-top: 0.25rem;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label for="kb-description">Description:</label><br>
+                <textarea id="kb-description" style="width: 100%; padding: 0.5rem; margin-top: 0.25rem;" rows="3"></textarea>
+            </div>
+            <div>
+                <button type="submit" class="button">Create</button>
+                <button type="button" class="button" style="background-color: #95a5a6;" onclick="hideCreateDialog()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let knowledgeBases = [];
+
+async function loadKnowledgeBases() {
+    try {
+        // 加载所有知识库（包括草稿）
+        const response = await fetch('/api/knowledge/?show_mode=all');
+        knowledgeBases = await response.json();
+        
+        const tbody = document.querySelector('#kb-table tbody');
+        tbody.innerHTML = '';
+        
+        if (knowledgeBases.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No knowledge bases found</td></tr>';
+            return;
+        }
+        
+        knowledgeBases.forEach(kb => {
+            const row = document.createElement('tr');
+            const isDraft = kb.is_draft || (kb.metadata && kb.metadata.is_draft);
+            
+            row.innerHTML = `
+                <td>${kb.name}</td>
+                <td>
+                    <span class="status-badge ${isDraft ? 'draft' : 'published'}">
+                        ${isDraft ? 'DRAFT' : 'PUBLISHED'}
+                    </span>
+                </td>
+                <td>${kb.document_count || 0}</td>
+                <td>${kb.device_name || 'Server'}</td>
+                <td>${new Date(kb.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="button" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                            onclick="viewDocuments('${kb.id}')">Documents</button>
+                    ${isDraft ? `<button class="button" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; background-color: #27ae60;" 
+                            onclick="publishKnowledgeBase('${kb.id}', '${kb.name}')">Publish</button>` : ''}
+                    <button class="button danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                            onclick="deleteKnowledgeBase('${kb.id}', '${kb.name}')">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading knowledge bases:', error);
+        alert('Failed to load knowledge bases');
+    }
+}
+
+async function createKnowledgeBase(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('kb-name').value;
+    const description = document.getElementById('kb-description').value;
+    
+    try {
+        const response = await fetch('/api/knowledge/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                description: description,
+                device_id: 'server-admin',
+                device_name: 'Server Admin',
+                is_draft: false  // 服务器创建的默认为已发布
+            })
+        });
+        
+        if (response.ok) {
+            alert('Knowledge base created successfully');
+            hideCreateDialog();
+            loadKnowledgeBases();
+        } else {
+            const error = await response.json();
+            alert('Failed to create knowledge base: ' + error.detail);
+        }
+    } catch (error) {
+        alert('Error creating knowledge base: ' + error.message);
+    }
+}
+
+async function deleteKnowledgeBase(id, name) {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/knowledge/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'x-admin-key': 'mas-server-admin'
+            }
+        });
+        
+        if (response.ok) {
+            alert('Knowledge base deleted successfully');
+            loadKnowledgeBases();
+        } else {
+            alert('Failed to delete knowledge base');
+        }
+    } catch (error) {
+        alert('Error deleting knowledge base: ' + error.message);
+    }
+}
+
+async function publishKnowledgeBase(id, name) {
+    if (!confirm(`Are you sure you want to publish "${name}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/knowledge/${id}/publish`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                device_id: 'server-admin'  // 服务器管理员身份
+            })
+        });
+        
+        if (response.ok) {
+            alert('Knowledge base published successfully');
+            loadKnowledgeBases();
+        } else {
+            const error = await response.json();
+            alert('Failed to publish knowledge base: ' + error.detail);
+        }
+    } catch (error) {
+        alert('Error publishing knowledge base: ' + error.message);
+    }
+}
+
+function viewDocuments(kbId) {
+    window.location.href = `/admin/knowledge/${kbId}/documents`;
+}
+
+function showCreateDialog() {
+    document.getElementById('create-dialog').style.display = 'block';
+    document.getElementById('kb-name').value = '';
+    document.getElementById('kb-description').value = '';
+}
+
+function hideCreateDialog() {
+    document.getElementById('create-dialog').style.display = 'none';
+}
+
+function filterKnowledgeBases() {
+    const filterValue = document.getElementById('filter-status').value;
+    const tbody = document.querySelector('#kb-table tbody');
+    tbody.innerHTML = '';
+    
+    const filteredKBs = knowledgeBases.filter(kb => {
+        const isDraft = kb.is_draft || (kb.metadata && kb.metadata.is_draft);
+        if (filterValue === 'draft') return isDraft;
+        if (filterValue === 'published') return !isDraft;
+        return true;
+    });
+    
+    if (filteredKBs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No knowledge bases found</td></tr>';
+        return;
+    }
+    
+    filteredKBs.forEach(kb => {
+        const row = document.createElement('tr');
+        const isDraft = kb.is_draft || (kb.metadata && kb.metadata.is_draft);
+        
+        row.innerHTML = `
+            <td>${kb.name}</td>
+            <td>
+                <span class="status-badge ${isDraft ? 'draft' : 'published'}">
+                    ${isDraft ? 'DRAFT' : 'PUBLISHED'}
+                </span>
+            </td>
+            <td>${kb.document_count || 0}</td>
+            <td>${kb.device_name || 'Server'}</td>
+            <td>${new Date(kb.created_at).toLocaleDateString()}</td>
+            <td>
+                <button class="button" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                        onclick="viewDocuments('${kb.id}')">Documents</button>
+                ${isDraft ? `<button class="button" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; background-color: #27ae60;" 
+                        onclick="publishKnowledgeBase('${kb.id}', '${kb.name}')">Publish</button>` : ''}
+                <button class="button danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                        onclick="deleteKnowledgeBase('${kb.id}', '${kb.name}')">Delete</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Load data on page load
+window.addEventListener('load', loadKnowledgeBases);
+</script>
+{% endblock %}

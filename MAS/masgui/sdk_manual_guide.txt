@@ -1,0 +1,77 @@
+@echo off
+echo ====================================================
+echo Manual SDK Component Installation Guide
+echo ====================================================
+echo.
+
+set "ANDROID_HOME=%USERPROFILE%\AppData\Local\Android\Sdk"
+
+echo Your Android SDK location: %ANDROID_HOME%
+echo.
+echo Step 1: Find sdkmanager
+echo -----------------------
+
+:: 显示可能的位置
+echo Checking for sdkmanager...
+echo.
+
+if exist "%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat" (
+    echo Found: %ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat
+    set "SDK_PATH=%ANDROID_HOME%\cmdline-tools\latest\bin"
+) else if exist "%ANDROID_HOME%\tools\bin\sdkmanager.bat" (
+    echo Found: %ANDROID_HOME%\tools\bin\sdkmanager.bat
+    set "SDK_PATH=%ANDROID_HOME%\tools\bin"
+) else (
+    echo NOT FOUND! You need to install Android SDK Command-line Tools
+    echo.
+    goto :install_instructions
+)
+
+echo.
+echo Step 2: Commands to run manually
+echo --------------------------------
+echo.
+echo Open Command Prompt as Administrator and run:
+echo.
+echo 1. Set environment:
+echo    set JAVA_HOME=C:\Program Files\Android\Android Studio\jbr
+echo    set PATH=%%JAVA_HOME%%\bin;%SDK_PATH%;%%PATH%%
+echo.
+echo 2. Accept licenses:
+echo    sdkmanager --licenses --no_https
+echo    (press 'y' to accept all)
+echo.
+echo 3. Install CMake:
+echo    sdkmanager "cmake;3.22.1" --no_https
+echo.
+echo 4. If CMake fails, try:
+echo    sdkmanager "cmake;3.18.1" --no_https
+echo    OR
+echo    sdkmanager --list --no_https ^| findstr cmake
+echo    (to see available versions)
+echo.
+echo 5. Install other tools if needed:
+echo    sdkmanager "build-tools;34.0.0" --no_https
+echo    sdkmanager "platform-tools" --no_https
+echo.
+goto :end
+
+:install_instructions
+echo Installation Instructions:
+echo -------------------------
+echo 1. Open Android Studio
+echo 2. Go to: Configure -^> SDK Manager
+echo    (or Tools -^> SDK Manager if a project is open)
+echo 3. Click on "SDK Tools" tab
+echo 4. Check: "Android SDK Command-line Tools (latest)"
+echo 5. Click "Apply" and wait for installation
+echo 6. Run this script again
+echo.
+
+:end
+echo ====================================================
+echo After installing components, run:
+echo   build_apk_now.bat
+echo ====================================================
+echo.
+pause

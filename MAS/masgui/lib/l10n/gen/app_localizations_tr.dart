@@ -512,6 +512,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String settingsVersion(String version) {
-    return 'Ollama App v$version';
+    return 'Baymin v$version';
   }
 }

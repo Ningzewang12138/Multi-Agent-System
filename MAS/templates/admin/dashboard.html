@@ -1,0 +1,107 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="grid">
+    <div class="card">
+        <h2>System Status</h2>
+        <p>Server is running</p>
+        <p style="margin-top: 1rem;">
+            <a href="/admin/system" class="button">View Details</a>
+        </p>
+    </div>
+    
+    <div class="card">
+        <h2>Knowledge Bases</h2>
+        <p id="kb-count">Loading...</p>
+        <p style="margin-top: 1rem;">
+            <a href="/admin/knowledge" class="button">Manage</a>
+        </p>
+    </div>
+    
+    <div class="card">
+        <h2>Connected Devices</h2>
+        <p id="device-count">Loading...</p>
+        <p style="margin-top: 1rem;">
+            <a href="/admin/devices" class="button">View Devices</a>
+        </p>
+    </div>
+    
+    <div class="card">
+        <h2>Quick Actions</h2>
+        <p>
+            <button class="button" onclick="testConnection()">Test Connection</button>
+            <button class="button" onclick="refreshModels()">Refresh Models</button>
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Recent Activity</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Device</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="activity-log">
+            <tr>
+                <td colspan="4" style="text-align: center;">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadDashboardData() {
+    try {
+        // Load knowledge base count
+        const kbResponse = await fetch('/api/knowledge/');
+        const kbs = await kbResponse.json();
+        document.getElementById('kb-count').textContent = `${kbs.length} knowledge bases`;
+        
+        // Load device count
+        const deviceResponse = await fetch('/api/sync/devices');
+        const devices = await deviceResponse.json();
+        const onlineDevices = devices.filter(d => d.status === 'online');
+        document.getElementById('device-count').textContent = 
+            `${onlineDevices.length} online / ${devices.length} total`;
+            
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+async function testConnection() {
+    try {
+        const response = await fetch('/api/system/info');
+        const data = await response.json();
+        alert('Connection successful!\n' + JSON.stringify(data, null, 2));
+    } catch (error) {
+        alert('Connection failed: ' + error.message);
+    }
+}
+
+async function refreshModels() {
+    try {
+        const response = await fetch('/api/chat/refresh-models', { method: 'POST' });
+        const data = await response.json();
+        alert(`Models refreshed!\nFound ${data.model_count} models\nDefault: ${data.default_model}`);
+    } catch (error) {
+        alert('Failed to refresh models: ' + error.message);
+    }
+}
+
+// Load data on page load
+window.addEventListener('load', loadDashboardData);
+
+// Refresh data every 30 seconds
+setInterval(loadDashboardData, 30000);
+</script>
+{% endblock %}

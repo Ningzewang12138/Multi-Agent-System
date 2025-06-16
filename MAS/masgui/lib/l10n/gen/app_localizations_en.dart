@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Brigitte';
+  String get appTitle => 'Baymin';
 
   @override
   String get optionNewChat => 'New Chat';
@@ -116,7 +116,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modelDialogAddAllowanceDescription =>
-      'Brigitte must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.';
+      'Baymin must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.';
 
   @override
   String get modelDialogAddAllowanceAllow => 'Allow';
@@ -185,7 +185,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDescriptionInterface =>
-      'Edit how Brigitte looks and behaves.';
+      'Edit how Baymin looks and behaves.';
 
   @override
   String get settingsTitleVoice => 'Voice';
@@ -205,7 +205,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitleAbout => 'About';
 
   @override
-  String get settingsDescriptionAbout => 'Learn more about Brigitte.';
+  String get settingsDescriptionAbout => 'Learn more about Baymin.';
 
   @override
   String get settingsSavedAutomatically => 'Settings are saved automatically';
@@ -376,7 +376,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThemeDevice => 'Device';
 
   @override
-  String get settingsThemeOllama => 'Brigitte';
+  String get settingsThemeOllama => 'Baymin';
 
   @override
   String get settingsTemporaryFixes => 'Temporary interface fixes';
@@ -506,6 +506,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsVersion(String version) {
-    return 'Brigitte v$version';
+    return 'Baymin v$version';
   }
 }

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAS Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        nav {
+            background-color: #34495e;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+        }
+        
+        nav li {
+            margin: 0;
+        }
+        
+        nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: #2c3e50;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card h3 {
+            color: #7f8c8d;
+            font-size: 0.875rem;
+            font-weight: normal;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .status.online {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .status.offline {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .button.secondary {
+            background-color: #95a5a6;
+        }
+        
+        .button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MAS Server Administration</h1>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="/admin/" class="active">Dashboard</a></li>
+                <li><a href="/admin/knowledge">Knowledge Bases</a></li>
+                <li><a href="/admin/devices">Devices</a></li>
+                <li><a href="/admin/system">System</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main>
+        <div class="container">
+            <h1>Dashboard</h1>
+            
+            <div class="grid" style="margin-top: 2rem;">
+                <div class="stat-card">
+                    <h3>Knowledge Bases</h3>
+                    <div class="value" id="kb-count">-</div>
+                    <a href="/admin/knowledge" class="button">Manage</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Connected Devices</h3>
+                    <div class="value" id="device-count">-</div>
+                    <a href="/admin/devices" class="button">View Devices</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>System Status</h3>
+                    <div class="status online" id="system-status">Online</div>
+                    <div style="margin-top: 1rem;">
+                        <a href="/admin/system" class="button secondary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem;">
+                <h2>Quick Actions</h2>
+                <div class="quick-actions">
+                    <a href="/admin/knowledge" class="button">Create Knowledge Base</a>
+                    <a href="/admin/devices" class="button secondary">Monitor Devices</a>
+                    <a href="/admin/system" class="button secondary">System Settings</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Recent Activity</h2>
+                <div id="activity-log">
+                    <p>Loading recent activity...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Multi-Agent System Server</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                // Load knowledge base count
+                const kbResponse = await fetch('/api/knowledge/');
+                const kbData = await kbResponse.json();
+                document.getElementById('kb-count').textContent = kbData.length;
+                
+                // Load device count
+                const deviceResponse = await fetch('/api/sync/devices');
+                const deviceData = await deviceResponse.json();
+                document.getElementById('device-count').textContent = deviceData.devices.length;
+                
+                // Load system status
+                const sysResponse = await fetch('/api/system/status');
+                const sysData = await sysResponse.json();
+                const statusEl = document.getElementById('system-status');
+                if (sysData.status === 'healthy') {
+                    statusEl.textContent = 'Online';
+                    statusEl.className = 'status online';
+                } else {
+                    statusEl.textContent = 'Issues Detected';
+                    statusEl.className = 'status offline';
+                }
+                
+                // Load recent activity
+                updateActivityLog(kbData, deviceData);
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+        
+        function updateActivityLog(kbData, deviceData) {
+            const activityLog = document.getElementById('activity-log');
+            
+            // Get recently created knowledge bases
+            const recentKBs = kbData
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 5);
+            
+            let html = '<ul style="list-style: none; padding: 0;">';
+            
+            recentKBs.forEach(kb => {
+                const date = new Date(kb.created_at).toLocaleString();
+                const isDraft = kb.is_draft || (kb.metadata && kb.metadata.is_draft);
+                html += `
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                        <strong>${isDraft ? 'Draft' : 'Knowledge Base'} Created:</strong> 
+                        ${kb.name} - ${date}
+                    </li>
+                `;
+            });
+            
+            if (recentKBs.length === 0) {
+                html += '<li>No recent activity</li>';
+            }
+            
+            html += '</ul>';
+            activityLog.innerHTML = html;
+        }
+        
+        // Load stats when page loads
+        window.addEventListener('load', loadDashboardStats);
+        
+        // Refresh stats every 30 seconds
+        setInterval(loadDashboardStats, 30000);
+    </script>
+</body>
+</html>

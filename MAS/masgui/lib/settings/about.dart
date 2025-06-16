@@ -130,11 +130,11 @@ class _ScreenSettingsAboutState extends State<ScreenSettingsAbout> {
                       button(AppLocalizations.of(context)!.settingsLicenses,
                           Icons.gavel_rounded, () {
                         selectionHaptic();
-                        String legal = "Copyright 2024 Brigitte Team";
-                        Widget icon = const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: ImageIcon(AssetImage("assets/logo512.png"),
-                              size: 48),
+                        String legal = "Copyright 2024 Baymin Team";
+                        Widget icon = Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Image.asset("assets/logo512.png",
+                              width: 48, height: 48),
                         );
                         if (desktopFeature()) {
                           showDialog(
@@ -144,7 +144,7 @@ class _ScreenSettingsAboutState extends State<ScreenSettingsAbout> {
                                     child: ClipRRect(
                                   borderRadius: BorderRadius.circular(28),
                                   child: LicensePage(
-                                      applicationName: "Brigitte",
+                                      applicationName: "Baymin",
                                       applicationVersion: currentVersion,
                                       applicationIcon: icon,
                                       applicationLegalese: legal),
@@ -153,7 +153,7 @@ class _ScreenSettingsAboutState extends State<ScreenSettingsAbout> {
                         } else {
                           showLicensePage(
                               context: context,
-                              applicationName: "Brigitte",
+                              applicationName: "Baymin",
                               applicationVersion: currentVersion,
                               applicationIcon: icon,
                               applicationLegalese: legal);

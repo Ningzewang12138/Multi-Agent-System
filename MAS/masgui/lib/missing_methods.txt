@@ -1,0 +1,374 @@
+// 这是main.dart中缺失的方法，需要手动添加到_MainAppState类中
+
+  @override
+  void dispose() {
+    _deviceService.dispose();
+    super.dispose();
+  }
+
+  // 加载知识库列表
+  Future<void> _loadKnowledgeBases() async {
+    if (AppConfig.serverMode == 'multiagent') {
+      try {
+        final kbs = await MultiAgentService().getKnowledgeBases();
+        setState(() {
+          knowledgeBases = kbs;
+          
+          // 验证选中的知识库是否仍然存在
+          if (selectedKnowledgeBase != null) {
+            bool exists = kbs.any((kb) => kb['id'] == selectedKnowledgeBase);
+            if (!exists) {
+              selectedKnowledgeBase = null;
+              useRAG = false;
+              prefs?.remove('selectedKnowledgeBase');
+              prefs?.setBool('useRAG', false);
+            }
+          }
+        });
+      } catch (e) {
+        print('Failed to load knowledge bases: $e');
+      }
+    }
+  }
+
+  // 显示知识库选择器
+  void _showKnowledgeBaseSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+              ),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Knowledge Base Settings',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // RAG 开关
+                  SwitchListTile(
+                    title: const Text('Use Knowledge Base (RAG)'),
+                    subtitle: const Text('Enable context-aware responses'),
+                    value: useRAG,
+                    onChanged: (value) {
+                      setModalState(() {
+                        useRAG = value;
+                        // 保存设置
+                        prefs?.setBool('useRAG', value);
+                      });
+                      setState(() {});
+                    },
+                  ),
+
+                  if (useRAG) ...[
+                    const Divider(),
+                    const Text('Select Knowledge Base:'),
+                    const SizedBox(height: 8),
+
+                    // 知识库列表
+                    if (knowledgeBases.isEmpty)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Text('No knowledge bases available'),
+                        ),
+                      )
+                    else
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: knowledgeBases
+                                .map((kb) => RadioListTile<String>(
+                                      title: Text(kb['name']),
+                                      subtitle:
+                                          Text('${kb['document_count']} documents'),
+                                      value: kb['id'],
+                                      groupValue: selectedKnowledgeBase,
+                                      onChanged: (value) {
+                                        setModalState(() {
+                                          selectedKnowledgeBase = value;
+                                          // 保存选择
+                                          if (value != null) {
+                                            prefs?.setString('selectedKnowledgeBase', value);
+                                          }
+                                        });
+                                        setState(() {});
+                                      },
+                                    ))
+                                .toList(),
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 16),
+
+                    // 管理知识库按钮
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const KnowledgeBaseScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.settings),
+                        label: const Text('Manage Knowledge Bases'),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  List<Widget> sidebar(BuildContext context, Function setState) {
+    var padding = EdgeInsets.only(
+        left: desktopLayoutRequired(context) ? 17 : 12,
+        right: desktopLayoutRequired(context) ? 17 : 12);
+    return List.from([
+      (desktopLayoutNotRequired(context) || kIsWeb)
+          ? const SizedBox(height: 8)
+          : const SizedBox.shrink(),
+      desktopLayoutNotRequired(context)
+          ? const SizedBox.shrink()
+          : (Padding(
+              padding: padding,
+              child: InkWell(
+                  enableFeedback: false,
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50))),
+                  onTap: () async {
+                    // ester egg? gimmick? not sure if it should be kept
+                    return;
+                    // ignore: dead_code
+                    if (sidebarIconSize != 1) return;
+                    setState(() {
+                      sidebarIconSize = 0.8;
+                    });
+                    await Future.delayed(const Duration(milliseconds: 200));
+                    setState(() {
+                      sidebarIconSize = 1.2;
+                    });
+                    await Future.delayed(const Duration(milliseconds: 200));
+                    setState(() {
+                      sidebarIconSize = 1;
+                    });
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 12),
+                            child: AnimatedScale(
+                                scale: sidebarIconSize,
+                                duration: const Duration(milliseconds: 400),
+                                child: const ImageIcon(
+                                    AssetImage("assets/logo512.png")))),
+                        Expanded(
+                          child: Text(AppLocalizations.of(context)!.appTitle,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 16),
+                      ]))))),
+      (desktopLayoutNotRequired(context) ||
+              (!allowMultipleChats && !allowSettings))
+          ? const SizedBox.shrink()
+          : Divider(
+              color: desktopLayout(context)
+                  ? Theme.of(context).colorScheme.onSurface.withAlpha(20)
+                  : null),
+      (allowMultipleChats)
+          ? (Padding(
+              padding: padding,
+              child: InkWell(
+                  enableFeedback: false,
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50))),
+                  onTap: () {
+                    selectionHaptic();
+                    if (!desktopLayout(context)) {
+                      Navigator.of(context).pop();
+                    }
+                    if (!chatAllowed && model != null) return;
+                    chatUuid = null;
+                    messages = [];
+                    setState(() {});
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      child: Row(children: [
+                        const Padding(
+                            padding: EdgeInsets.only(left: 16, right: 12),
+                            child: Icon(Icons.add_rounded)),
+                        Expanded(
+                          child: Text(
+                              AppLocalizations.of(context)!.optionNewChat,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 16),
+                      ])))))
+          : const SizedBox.shrink(),
+      // 知识库管理入口
+      (AppConfig.serverMode == 'multiagent')
+          ? (Padding(
+              padding: padding,
+              child: InkWell(
+                  enableFeedback: false,
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50))),
+                  onTap: () {
+                    selectionHaptic();
+                    if (!desktopLayout(context)) {
+                      Navigator.of(context).pop();
+                    }
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const KnowledgeBaseScreen()));
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 12),
+                            child: Icon(
+                              useRAG ? Icons.folder : Icons.folder_outlined,
+                              color: useRAG
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                            )),
+                        Expanded(
+                          child: Text(
+                              'Knowledge Base',
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 16),
+                      ])))))
+          : const SizedBox.shrink(),
+      (allowSettings)
+          ? (Padding(
+              padding: padding,
+              child: InkWell(
+                  enableFeedback: false,
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50))),
+                  onTap: () {
+                    selectionHaptic();
+                    if (!desktopLayout(context)) {
+                      Navigator.of(context).pop();
+                    }
+                    setState(() {
+                      settingsOpen = true;
+                    });
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ScreenSettings()));
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 12),
+                            child: (updateStatus == "ok" &&
+                                    updateDetectedOnStart &&
+                                    (Version.parse(latestVersion ?? "1.0.0") >
+                                        Version.parse(
+                                            currentVersion ?? "2.0.0")))
+                                ? const Badge(child: Icon(Icons.dns_rounded))
+                                : const Icon(Icons.dns_rounded)),
+                        Expanded(
+                          child: Text(
+                              AppLocalizations.of(context)!.optionSettings,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 16),
+                      ])))))
+          : const SizedBox.shrink(),
+      (pwa.PWAInstall().installPromptEnabled &&
+              pwa.PWAInstall().launchMode == pwa.LaunchMode.browser)
+          ? (Padding(
+              padding: padding,
+              child: InkWell(
+                  enableFeedback: false,
+                  customBorder: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50))),
+                  onTap: () {
+                    selectionHaptic();
+                    if (!desktopLayout(context)) {
+                      Navigator.of(context).pop();
+                    }
+                    pwa.PWAInstall().onAppInstalled = () {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        pwa.setLaunchModePWA();
+                        setMainAppState!(() {});
+                      });
+                    };
+                    pwa.PWAInstall().promptInstall_();
+                    setState(() {});
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 16),
+                      child: Row(children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 12),
+                            child: desktopLayoutNotRequired(context)
+                                ? const Icon(Icons.install_desktop_rounded)
+                                : const Icon(Icons.install_mobile_rounded)),
+                        Expanded(
+                          child: Text(
+                              AppLocalizations.of(context)!.optionInstallPwa,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 16),
+                      ])))))
+          : const SizedBox.shrink(),
+      // ... 剩余的sidebar内容太长，需要从原文件中复制
+    ]);
+  }

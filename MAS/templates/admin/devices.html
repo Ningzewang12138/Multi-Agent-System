@@ -1,0 +1,274 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>Device Management</h1>
+
+<!-- 调试信息面板 -->
+<div class="card" style="background-color: #f0f0f0; margin-bottom: 1rem;">
+    <h2>Debug Info</h2>
+    <div id="debug-info" style="font-family: monospace; font-size: 0.875rem;">
+        <p>Loading debug info...</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Connected Devices</h2>
+    <div style="margin-bottom: 1rem;">
+        <button class="button" onclick="loadDevices()">Refresh</button>
+        <button class="button" onclick="broadcastDiscovery()">Broadcast Discovery</button>
+        <button class="button" onclick="testConnection()">Test Connection</button>
+        <span id="last-update" style="margin-left: 1rem; color: #666;"></span>
+    </div>
+    
+    <div id="error-message" style="color: red; margin-bottom: 1rem; display: none;"></div>
+    
+    <table id="devices-table">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Device ID</th>
+                <th>Type</th>
+                <th>IP Address</th>
+                <th>Port</th>
+                <th>Status</th>
+                <th>Last Seen</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="8" style="text-align: center;">Loading devices...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Current Device</h2>
+    <div id="current-device-info">
+        <p>Loading...</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Network Info</h2>
+    <div id="network-info">
+        <p>Discovery Port: 8001 (UDP)</p>
+        <p>API Port: 8000 (HTTP)</p>
+        <p id="firewall-note" style="color: orange;">Note: Make sure Windows Firewall allows UDP port 8001 for device discovery</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let refreshInterval = null;
+
+// 显示错误消息
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+// 更新最后刷新时间
+function updateLastRefreshTime() {
+    const now = new Date().toLocaleTimeString();
+    document.getElementById('last-update').textContent = `Last update: ${now}`;
+}
+
+// 加载调试信息
+async function loadDebugInfo() {
+    try {
+        const response = await fetch('/api/system/info');
+        const sysInfo = await response.json();
+        
+        const debugDiv = document.getElementById('debug-info');
+        debugDiv.innerHTML = `
+            <p>Server Platform: ${sysInfo.platform} ${sysInfo.architecture}</p>
+            <p>Hostname: ${sysInfo.hostname}</p>
+            <p>Python Version: ${sysInfo.python_version}</p>
+            <p>Server Status: <span style="color: green;">Running</span></p>
+        `;
+    } catch (error) {
+        document.getElementById('debug-info').innerHTML = `
+            <p style="color: red;">Failed to load debug info: ${error.message}</p>
+        `;
+    }
+}
+
+// 加载设备列表
+async function loadDevices() {
+    try {
+        console.log('Fetching devices...');
+        const response = await fetch('/api/sync/devices');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Raw response:', data);
+        
+        const tbody = document.querySelector('#devices-table tbody');
+        
+        // Handle both direct array and response object
+        const devices = Array.isArray(data) ? data : (data.devices || []);
+        
+        console.log('Devices array:', devices);
+        updateLastRefreshTime();
+        
+        if (!devices || devices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No devices found. Click "Broadcast Discovery" to search for devices.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = devices.map(device => `
+            <tr>
+                <td>${device.name || 'Unknown'}</td>
+                <td style="font-family: monospace; font-size: 0.875rem;">${device.id || 'N/A'}</td>
+                <td>${device.type || 'Unknown'}</td>
+                <td>${device.ip_address || device.ip || 'Unknown'}</td>
+                <td>${device.port || '8000'}</td>
+                <td>
+                    <span class="status-badge ${device.status === 'online' ? 'online' : 'offline'}">
+                        ${device.status || 'unknown'}
+                    </span>
+                </td>
+                <td>${device.last_seen ? new Date(device.last_seen).toLocaleString() : 'Never'}</td>
+                <td>
+                    <button class="button" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                            onclick="pingDevice('${device.id}')">Ping</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading devices:', error);
+        showError(`Failed to load devices: ${error.message}`);
+        
+        // 显示错误在表格中
+        const tbody = document.querySelector('#devices-table tbody');
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+    }
+}
+
+async function loadCurrentDevice() {
+    try {
+        const response = await fetch('/api/sync/device/info');
+        const device = await response.json();
+        
+        document.getElementById('current-device-info').innerHTML = `
+            <p><strong>Name:</strong> ${device.name || 'Unknown'}</p>
+            <p><strong>ID:</strong> <code>${device.id || 'N/A'}</code></p>
+            <p><strong>Type:</strong> ${device.type || 'Unknown'}</p>
+            <p><strong>Platform:</strong> ${device.platform || 'Unknown'}</p>
+            <p><strong>IP:</strong> ${device.ip_address || device.ip || 'Unknown'}</p>
+            <p><strong>Port:</strong> ${device.port || 8000}</p>
+            <p><strong>Status:</strong> <span class="status-badge online">Online</span></p>
+        `;
+    } catch (error) {
+        console.error('Error loading current device:', error);
+        document.getElementById('current-device-info').innerHTML = `
+            <p style="color: red;">Failed to load device information</p>
+        `;
+    }
+}
+
+async function broadcastDiscovery() {
+    try {
+        const response = await fetch('/api/sync/devices/scan', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Discovery broadcast sent. Found ${result.device_count} devices.`);
+            setTimeout(loadDevices, 2000); // Reload after 2 seconds
+        } else {
+            const error = await response.text();
+            alert('Failed to broadcast discovery: ' + error);
+        }
+    } catch (error) {
+        console.error('Broadcast error:', error);
+        alert('Failed to broadcast discovery: ' + error.message);
+    }
+}
+
+// 测试连接
+async function testConnection() {
+    try {
+        console.log('Testing connection...');
+        const response = await fetch('/api/system/health');
+        const health = await response.json();
+        
+        if (health.status === 'healthy') {
+            alert('Connection test successful!\nOllama connected: ' + health.ollama_connected);
+        } else {
+            alert('Connection test failed!\nStatus: ' + health.status);
+        }
+    } catch (error) {
+        alert('Connection test error: ' + error.message);
+    }
+}
+
+async function pingDevice(deviceId) {
+    try {
+        const response = await fetch(`/api/sync/ping/${deviceId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            alert('Ping successful');
+            loadDevices();
+        } else {
+            alert('Device not responding');
+        }
+    } catch (error) {
+        alert('Ping failed: ' + error.message);
+    }
+}
+
+// 启动/停止自动刷新
+function toggleAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+        console.log('Auto-refresh stopped');
+    } else {
+        refreshInterval = setInterval(loadDevices, 10000); // 10秒
+        console.log('Auto-refresh started');
+    }
+}
+
+// Initialize
+window.addEventListener('load', () => {
+    console.log('Initializing device management page...');
+    
+    // 加载所有数据
+    loadDebugInfo();
+    loadDevices();
+    loadCurrentDevice();
+    
+    // 启动自动刷新
+    refreshInterval = setInterval(loadDevices, 10000); // 10秒刷新一次
+    
+    // 添加键盘快捷键
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+            e.preventDefault();
+            loadDevices();
+        }
+    });
+});
+
+// 页面卸载时清理
+window.addEventListener('beforeunload', () => {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+</script>
+{% endblock %}

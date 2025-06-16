@@ -35,7 +35,7 @@
   "modelDialogAddPromptAlreadyExists": "Il modello esiste già",
   "modelDialogAddPromptInvalid": "Nome del modello non valido",
   "modelDialogAddAllowanceTitle": "Abilita Proxy",
-  "modelDialogAddAllowanceDescription": "Ollama App deve controllare se il modello inserito è valido. Per questo, normalmente inviamo una richiesta web alla lista dei modelli Ollama e controlliamo il codice di stato, ma perché stai usando il web client, non possiamo farlo direttamente. Invece, l'app invierà la richiesta a un altro api, ospitato da JHubi1, per eseguire il controllo.\nQuesta è una richiesta verrà inviata solo quando aggiungi un nuovo modello.\nIl tuo indirizzo IP verrà inviato con la richiesta e potrebbe essere memorizzato per un massimo di dieci minuti per evitare lo spamming con potenziali intenzioni nocive.\nSe accetti, la tua selezione sarà ricordata in futuro; in caso contrario, non verrà inviato nulla e il modello non verrà aggiunto.",
+  "modelDialogAddAllowanceDescription": "Baymin deve controllare se il modello inserito è valido. Per questo, normalmente inviamo una richiesta web alla lista dei modelli Ollama e controlliamo il codice di stato, ma perché stai usando il web client, non possiamo farlo direttamente. Invece, l'app invierà la richiesta a un altro api, ospitato da JHubi1, per eseguire il controllo.\nQuesta è una richiesta verrà inviata solo quando aggiungi un nuovo modello.\nIl tuo indirizzo IP verrà inviato con la richiesta e potrebbe essere memorizzato per un massimo di dieci minuti per evitare lo spamming con potenziali intenzioni nocive.\nSe accetti, la tua selezione sarà ricordata in futuro; in caso contrario, non verrà inviato nulla e il modello non verrà aggiunto.",
   "modelDialogAddAllowanceAllow": "Consenti",
   "modelDialogAddAllowanceDeny": "Nega",
   "modelDialogAddAssuranceTitle": "Aggiungi {model}?",
@@ -61,7 +61,7 @@
   "settingsTitleExport": "Esporta",
   "settingsDescriptionExport": "Esporta e importa la cronologia delle tue chat.",
   "settingsTitleAbout": "Informazioni",
-  "settingsDescriptionAbout": "Controlla gli aggiornamenti e scopri di più su Ollama App.",
+  "settingsDescriptionAbout": "Controlla gli aggiornamenti e scopri di più su Baymin.",
   "settingsSavedAutomatically": "Le impostazioni vengono salvate automaticamente",
   "settingsExperimentalAlpha": "alpha",
   "settingsExperimentalAlphaDescription": "Questa funzionalità è in versione alpha e potrebbe non funzionare come previsto o previsto.\nNon si possono escludere problemi critici e/o danni critici permanenti al dispositivo e/o ai servizi utilizzati.\nL'utilizzo è a proprio rischio. Nessuna responsabilità da parte dell'autore dell'app.",
@@ -146,5 +146,5 @@
   "settingsGithub": "GitHub",
   "settingsReportIssue": "Riporta problema",
   "settingsLicenses": "Licenze",
-  "settingsVersion": "Ollama App v{version}"
+  "settingsVersion": "Baymin v{version}"
 }

@@ -1,0 +1,312 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>API Test Console</h1>
+
+<div class="card">
+    <h2>Chat Test</h2>
+    <div>
+        <label>Model:</label><br>
+        <select id="chat-model" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            <option value="">Loading models...</option>
+        </select>
+    </div>
+    <div>
+        <label>Message:</label><br>
+        <textarea id="chat-message" rows="4" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;" 
+                  placeholder="Enter your message here..."></textarea>
+    </div>
+    <div>
+        <button class="button" onclick="testChat()">Send Chat</button>
+        <button class="button" onclick="testStreamChat()">Test Stream</button>
+    </div>
+    <div style="margin-top: 1rem; background-color: #f8f9fa; padding: 1rem; border-radius: 4px;">
+        <strong>Response:</strong>
+        <div id="chat-response" style="margin-top: 0.5rem; white-space: pre-wrap;">
+            <em>Response will appear here...</em>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>RAG Test</h2>
+    <div>
+        <label>Knowledge Base:</label><br>
+        <select id="rag-kb" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            <option value="">Loading knowledge bases...</option>
+        </select>
+    </div>
+    <div>
+        <label>Query:</label><br>
+        <input type="text" id="rag-query" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;" 
+               placeholder="Enter your question...">
+    </div>
+    <div>
+        <button class="button" onclick="testRAG()">Test RAG Query</button>
+    </div>
+    <div style="margin-top: 1rem; background-color: #f8f9fa; padding: 1rem; border-radius: 4px;">
+        <strong>RAG Response:</strong>
+        <div id="rag-response" style="margin-top: 0.5rem;">
+            <em>Response will appear here...</em>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>API Endpoint Test</h2>
+    <div style="display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem; align-items: center;">
+        <label>Method:</label>
+        <select id="api-method" style="padding: 0.5rem;">
+            <option>GET</option>
+            <option>POST</option>
+            <option>DELETE</option>
+        </select>
+        
+        <label>Endpoint:</label>
+        <input type="text" id="api-endpoint" placeholder="/api/knowledge/" style="padding: 0.5rem;">
+        
+        <label>Body:</label>
+        <textarea id="api-body" rows="4" placeholder='{"key": "value"}' style="padding: 0.5rem;"></textarea>
+    </div>
+    <div style="margin-top: 1rem;">
+        <button class="button" onclick="testAPI()">Send Request</button>
+    </div>
+    <div style="margin-top: 1rem; background-color: #f8f9fa; padding: 1rem; border-radius: 4px;">
+        <strong>API Response:</strong>
+        <pre id="api-response" style="margin-top: 0.5rem; overflow-x: auto;"><em>Response will appear here...</em></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let models = [];
+let knowledgeBases = [];
+
+async function loadTestData() {
+    // Load models
+    try {
+        const response = await fetch('/api/chat/models');
+        const data = await response.json();
+        models = data.data || [];
+        
+        const modelSelect = document.getElementById('chat-model');
+        modelSelect.innerHTML = models.map(m => 
+            `<option value="${m.name}" ${m.is_default ? 'selected' : ''}>${m.name}</option>`
+        ).join('');
+    } catch (error) {
+        console.error('Error loading models:', error);
+    }
+    
+    // Load knowledge bases
+    try {
+        const response = await fetch('/api/knowledge/');
+        knowledgeBases = await response.json();
+        
+        const kbSelect = document.getElementById('rag-kb');
+        kbSelect.innerHTML = '<option value="">Select a knowledge base...</option>' + 
+            knowledgeBases.filter(kb => !kb.is_draft).map(kb => 
+                `<option value="${kb.id}">${kb.name} (${kb.document_count} docs)</option>`
+            ).join('');
+    } catch (error) {
+        console.error('Error loading knowledge bases:', error);
+    }
+}
+
+async function testChat() {
+    const model = document.getElementById('chat-model').value;
+    const message = document.getElementById('chat-message').value;
+    
+    if (!model || !message) {
+        alert('Please select a model and enter a message');
+        return;
+    }
+    
+    document.getElementById('chat-response').innerHTML = '<em>Sending request...</em>';
+    
+    try {
+        const response = await fetch('/api/chat/completions', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                model: model,
+                messages: [{role: 'user', content: message}],
+                stream: false
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            const content = data.choices[0].message.content;
+            document.getElementById('chat-response').textContent = content;
+        } else {
+            document.getElementById('chat-response').innerHTML = 
+                `<span style="color: red;">Error: ${data.detail || 'Request failed'}</span>`;
+        }
+    } catch (error) {
+        document.getElementById('chat-response').innerHTML = 
+            `<span style="color: red;">Error: ${error.message}</span>`;
+    }
+}
+
+async function testStreamChat() {
+    const model = document.getElementById('chat-model').value;
+    const message = document.getElementById('chat-message').value;
+    
+    if (!model || !message) {
+        alert('Please select a model and enter a message');
+        return;
+    }
+    
+    document.getElementById('chat-response').innerHTML = '';
+    
+    try {
+        const response = await fetch('/api/chat/completions', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                model: model,
+                messages: [{role: 'user', content: message}],
+                stream: true
+            })
+        });
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6);
+                    if (data === '[DONE]') continue;
+                    
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed.content) {
+                            document.getElementById('chat-response').textContent += parsed.content;
+                        }
+                    } catch (e) {
+                        // Skip invalid JSON
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        document.getElementById('chat-response').innerHTML = 
+            `<span style="color: red;">Error: ${error.message}</span>`;
+    }
+}
+
+async function testRAG() {
+    const kbId = document.getElementById('rag-kb').value;
+    const query = document.getElementById('rag-query').value;
+    
+    if (!kbId || !query) {
+        alert('Please select a knowledge base and enter a query');
+        return;
+    }
+    
+    document.getElementById('rag-response').innerHTML = '<em>Processing RAG query...</em>';
+    
+    try {
+        const response = await fetch('/api/chat/rag/completions', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                knowledge_base_id: kbId,
+                messages: [{role: 'user', content: query}],
+                stream: false,
+                search_limit: 5
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            const content = data.choices[0].message.content;
+            const searchResults = data.search_results;
+            
+            let html = `<div style="margin-bottom: 1rem;">
+                <strong>Search Results:</strong> ${searchResults.count} documents found
+            </div>`;
+            
+            if (searchResults.documents && searchResults.documents.length > 0) {
+                html += '<div style="margin-bottom: 1rem; font-size: 0.875rem;">';
+                html += '<strong>Sources:</strong><ul style="margin: 0.5rem 0 0 1.5rem;">';
+                searchResults.documents.forEach(doc => {
+                    html += `<li>${doc.content.substring(0, 100)}...</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            html += `<div><strong>Answer:</strong><br>${content}</div>`;
+            
+            document.getElementById('rag-response').innerHTML = html;
+        } else {
+            document.getElementById('rag-response').innerHTML = 
+                `<span style="color: red;">Error: ${data.detail || 'Request failed'}</span>`;
+        }
+    } catch (error) {
+        document.getElementById('rag-response').innerHTML = 
+            `<span style="color: red;">Error: ${error.message}</span>`;
+    }
+}
+
+async function testAPI() {
+    const method = document.getElementById('api-method').value;
+    const endpoint = document.getElementById('api-endpoint').value;
+    const body = document.getElementById('api-body').value;
+    
+    if (!endpoint) {
+        alert('Please enter an endpoint');
+        return;
+    }
+    
+    document.getElementById('api-response').textContent = 'Sending request...';
+    
+    try {
+        const options = {
+            method: method,
+            headers: {'Content-Type': 'application/json'}
+        };
+        
+        if (method !== 'GET' && body) {
+            try {
+                options.body = JSON.stringify(JSON.parse(body));
+            } catch (e) {
+                alert('Invalid JSON in body');
+                return;
+            }
+        }
+        
+        const response = await fetch(endpoint, options);
+        const contentType = response.headers.get('content-type');
+        
+        let data;
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            data = await response.text();
+        }
+        
+        document.getElementById('api-response').textContent = 
+            `Status: ${response.status} ${response.statusText}\n\n` +
+            (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+            
+    } catch (error) {
+        document.getElementById('api-response').innerHTML = 
+            `<span style="color: red;">Error: ${error.message}</span>`;
+    }
+}
+
+// Initialize
+window.addEventListener('load', loadTestData);
+</script>
+{% endblock %}

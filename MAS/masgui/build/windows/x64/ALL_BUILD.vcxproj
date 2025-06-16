@@ -141,9 +141,17 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\Baymin.vcxproj">
+      <Project>{EFFCB2B4-F320-3B69-A1E2-BCAE95AB9B05}</Project>
+      <Name>Baymin</Name>
+    </ProjectReference>
     <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\bitsdojo_window_windows\bitsdojo_window_windows_plugin.vcxproj">
       <Project>{935A4832-212B-3A22-8261-595DC337A994}</Project>
       <Name>bitsdojo_window_windows_plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\connectivity_plus\connectivity_plus_plugin.vcxproj">
+      <Project>{AD0AEC5B-26FC-3CD9-91FD-FE7DDE89954C}</Project>
+      <Name>connectivity_plus_plugin</Name>
     </ProjectReference>
     <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\dynamic_color\dynamic_color_plugin.vcxproj">
       <Project>{5BEE2F28-8344-3D77-8B69-66E9DAA5A6D8}</Project>
@@ -165,13 +173,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{3529BD7A-4C8A-3AE8-A238-70831362EFFA}</Project>
       <Name>flutter_wrapper_plugin</Name>
     </ProjectReference>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\ollama.vcxproj">
-      <Project>{9E5E4855-713A-3930-B332-F0E087B9C9ED}</Project>
-      <Name>ollama</Name>
-    </ProjectReference>
     <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\permission_handler_windows\permission_handler_windows_plugin.vcxproj">
       <Project>{32993AA5-6C14-3BB8-8C96-BC84796ADD03}</Project>
       <Name>permission_handler_windows_plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\share_plus\share_plus_plugin.vcxproj">
+      <Project>{98A9501B-5458-36B9-B661-286EEBB4D1D3}</Project>
+      <Name>share_plus_plugin</Name>
     </ProjectReference>
     <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\url_launcher_windows\url_launcher_windows_plugin.vcxproj">
       <Project>{B0370A06-CF2D-3D39-8928-50F1915029FF}</Project>

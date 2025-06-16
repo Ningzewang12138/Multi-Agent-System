@@ -109,7 +109,7 @@ abstract class AppLocalizations {
   /// Title of the application
   ///
   /// In en, this message translates to:
-  /// **'Brigitte'**
+  /// **'Baymin'**
   String get appTitle;
 
   /// Text displayed for new chat option
@@ -319,7 +319,7 @@ abstract class AppLocalizations {
   /// Description of the allow proxy dialog
   ///
   /// In en, this message translates to:
-  /// **'Brigitte must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.'**
+  /// **'Baymin must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly.\nThis is a one-time request and will only be sent when you add a new model.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.'**
   String get modelDialogAddAllowanceDescription;
 
   /// Text displayed for allow button, should be capitalized
@@ -439,7 +439,7 @@ abstract class AppLocalizations {
   /// Description of the interface settings section
   ///
   /// In en, this message translates to:
-  /// **'Edit how Brigitte looks and behaves.'**
+  /// **'Edit how Baymin looks and behaves.'**
   String get settingsDescriptionInterface;
 
   /// Title of the voice settings section. Do not translate if not required!
@@ -475,7 +475,7 @@ abstract class AppLocalizations {
   /// Description of the about settings section
   ///
   /// In en, this message translates to:
-  /// **'Learn more about Brigitte.'**
+  /// **'Learn more about Baymin.'**
   String get settingsDescriptionAbout;
 
   /// Text displayed when settings are saved automatically
@@ -745,7 +745,7 @@ abstract class AppLocalizations {
   /// Text displayed as description for Ollama theme option
   ///
   /// In en, this message translates to:
-  /// **'Brigitte'**
+  /// **'Baymin'**
   String get settingsThemeOllama;
 
   /// Text displayed as description for temporary fixes section
@@ -985,7 +985,7 @@ abstract class AppLocalizations {
   /// Text displayed as description for version
   ///
   /// In en, this message translates to:
-  /// **'Brigitte v{version}'**
+  /// **'Baymin v{version}'**
   String settingsVersion(String version);
 }
 

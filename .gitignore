@@ -5,3 +5,27 @@ MAS/models/
 *.lib
 *.pyd
 *.safetensors
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# API Keys and sensitive configuration
+MAS/server/config/api_keys.json
+*.env
+
+# MCP Workspaces
+MAS/mcp_workspaces/
+
+# Database
+*.db
+MAS/server/chroma_db/
+
+# IDE
+.vscode/
+.idea/
+
+# Flutter
+MAS/masgui/build/
+MAS/masgui/.dart_tool/

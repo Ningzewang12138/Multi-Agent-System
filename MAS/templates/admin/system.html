@@ -1,0 +1,262 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>System Information</h1>
+
+<div class="grid">
+    <div class="card">
+        <h2>Server Status</h2>
+        <div id="server-status">
+            <p>Loading...</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Embedding Service</h2>
+        <div id="embedding-status">
+            <p>Loading...</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Vector Database</h2>
+        <div id="vectordb-status">
+            <p>Loading...</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Ollama Service</h2>
+        <div id="ollama-status">
+            <p>Loading...</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Available Models</h2>
+    <div style="margin-bottom: 1rem;">
+        <button class="button" onclick="refreshModels()">Refresh Models</button>
+    </div>
+    <table id="models-table">
+        <thead>
+            <tr>
+                <th>Model Name</th>
+                <th>Size</th>
+                <th>Default</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="4" style="text-align: center;">Loading models...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>System Resources</h2>
+    <div id="system-resources">
+        <p>Loading...</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>API Endpoints</h2>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/api/chat/completions</code></td>
+                    <td>POST</td>
+                    <td>Send chat messages</td>
+                </tr>
+                <tr>
+                    <td><code>/api/chat/rag/completions</code></td>
+                    <td>POST</td>
+                    <td>RAG-enhanced chat</td>
+                </tr>
+                <tr>
+                    <td><code>/api/knowledge/</code></td>
+                    <td>GET/POST</td>
+                    <td>Manage knowledge bases</td>
+                </tr>
+                <tr>
+                    <td><code>/api/knowledge/{id}/documents</code></td>
+                    <td>GET/POST</td>
+                    <td>Manage documents</td>
+                </tr>
+                <tr>
+                    <td><code>/api/sync/devices</code></td>
+                    <td>GET</td>
+                    <td>List devices</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadSystemInfo() {
+    try {
+        const response = await fetch('/api/system/info');
+        const info = await response.json();
+        
+        // Server status
+        document.getElementById('server-status').innerHTML = `
+            <p><strong>Version:</strong> ${info.version || '1.0.0'}</p>
+            <p><strong>Status:</strong> <span class="status-badge online">Running</span></p>
+            <p><strong>Uptime:</strong> ${info.uptime || 'N/A'}</p>
+        `;
+        
+        // Load other system info
+        loadEmbeddingStatus();
+        loadVectorDBStatus();
+        loadOllamaStatus();
+        loadModels();
+        loadSystemResources();
+        
+    } catch (error) {
+        console.error('Error loading system info:', error);
+        document.getElementById('server-status').innerHTML = 
+            '<p style="color: red;">Failed to load server status</p>';
+    }
+}
+
+async function loadEmbeddingStatus() {
+    try {
+        const response = await fetch('/api/system/embeddings/status');
+        const status = await response.json();
+        
+        document.getElementById('embedding-status').innerHTML = `
+            <p><strong>Default Service:</strong> ${status.default_service || 'None'}</p>
+            <p><strong>Available Services:</strong></p>
+            <ul style="margin-left: 1.5rem;">
+                ${status.available_services.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+            <p><strong>Embedding Dimension:</strong> ${status.embedding_dimension || 'Unknown'}</p>
+        `;
+    } catch (error) {
+        document.getElementById('embedding-status').innerHTML = 
+            '<p style="color: red;">Failed to load embedding status</p>';
+    }
+}
+
+async function loadVectorDBStatus() {
+    try {
+        // Get knowledge base count
+        const response = await fetch('/api/knowledge/');
+        const kbs = await response.json();
+        
+        document.getElementById('vectordb-status').innerHTML = `
+            <p><strong>Type:</strong> ChromaDB</p>
+            <p><strong>Status:</strong> <span class="status-badge online">Connected</span></p>
+            <p><strong>Collections:</strong> ${kbs.length}</p>
+            <p><strong>Path:</strong> <code>./chroma_db</code></p>
+        `;
+    } catch (error) {
+        document.getElementById('vectordb-status').innerHTML = 
+            '<p style="color: red;">Failed to load vector DB status</p>';
+    }
+}
+
+async function loadOllamaStatus() {
+    try {
+        const response = await fetch('/api/chat/models');
+        const data = await response.json();
+        
+        document.getElementById('ollama-status').innerHTML = `
+            <p><strong>Status:</strong> <span class="status-badge online">Connected</span></p>
+            <p><strong>Available Models:</strong> ${data.data.length}</p>
+            <p><strong>Default Model:</strong> ${data.default_model || 'None'}</p>
+            <p><strong>Base URL:</strong> <code>http://localhost:11434</code></p>
+        `;
+    } catch (error) {
+        document.getElementById('ollama-status').innerHTML = 
+            '<p style="color: orange;">Ollama service not available</p>';
+    }
+}
+
+async function loadModels() {
+    try {
+        const response = await fetch('/api/chat/models');
+        const data = await response.json();
+        
+        const tbody = document.querySelector('#models-table tbody');
+        
+        if (data.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No models found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.data.map(model => `
+            <tr>
+                <td><code>${model.name}</code></td>
+                <td>${formatSize(model.size)}</td>
+                <td>${model.is_default ? '✓' : ''}</td>
+                <td><span class="status-badge online">Available</span></td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading models:', error);
+    }
+}
+
+async function loadSystemResources() {
+    try {
+        // This would normally fetch from a system monitoring endpoint
+        // For now, showing example data
+        document.getElementById('system-resources').innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div>
+                    <p><strong>CPU Usage:</strong> ~20%</p>
+                    <p><strong>Memory Usage:</strong> 2.5 GB / 8 GB</p>
+                </div>
+                <div>
+                    <p><strong>Disk Space:</strong> 45 GB free</p>
+                    <p><strong>Active Connections:</strong> 3</p>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading system resources:', error);
+    }
+}
+
+async function refreshModels() {
+    try {
+        const response = await fetch('/api/chat/refresh-models', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            alert(result.message);
+            loadModels();
+        }
+    } catch (error) {
+        alert('Failed to refresh models');
+    }
+}
+
+function formatSize(bytes) {
+    if (!bytes) return 'Unknown';
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Initialize
+window.addEventListener('load', loadSystemInfo);
+</script>
+{% endblock %}

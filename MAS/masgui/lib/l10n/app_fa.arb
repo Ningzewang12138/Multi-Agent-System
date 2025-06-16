@@ -35,7 +35,7 @@
   "modelDialogAddPromptAlreadyExists": "Model already exists",
   "modelDialogAddPromptInvalid": "Invalid model name",
   "modelDialogAddAllowanceTitle": "Allow Proxy",
-  "modelDialogAddAllowanceDescription": "Ollama App must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you're using the web client, we can't do that directly. Instead, the app will send the request to a different api, hosted by JHubi1, to check for us.\nThis is a one-time request and will only be sent when you add a new model.\nYour IP address will be sent with the request and might be stored for up to ten minutes to prevent spamming with potential harmful intentions.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won't be added.",
+  "modelDialogAddAllowanceDescription": "Baymin must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you're using the web client, we can't do that directly. Instead, the app will send the request to a different api, hosted by JHubi1, to check for us.\nThis is a one-time request and will only be sent when you add a new model.\nYour IP address will be sent with the request and might be stored for up to ten minutes to prevent spamming with potential harmful intentions.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won't be added.",
   "modelDialogAddAllowanceAllow": "Allow",
   "modelDialogAddAllowanceDeny": "Deny",
   "modelDialogAddAssuranceTitle": "Add {model}?",
@@ -55,13 +55,13 @@
   "settingsTitleBehavior": "Behavior",
   "settingsDescriptionBehavior": "Change the behavior of the AI to your liking.",
   "settingsTitleInterface": "Interface",
-  "settingsDescriptionInterface": "Edit how Ollama App looks and behaves.",
+  "settingsDescriptionInterface": "Edit how Baymin looks and behaves.",
   "settingsTitleVoice": "Voice",
   "settingsDescriptionVoice": "Enable voice mode and configure voice settings.",
   "settingsTitleExport": "Export",
   "settingsDescriptionExport": "Export and import your chat history.",
   "settingsTitleAbout": "About",
-  "settingsDescriptionAbout": "Check for updates and learn more about Ollama App.",
+  "settingsDescriptionAbout": "Check for updates and learn more about Baymin.",
   "settingsSavedAutomatically": "Settings are saved automatically",
   "settingsExperimentalAlpha": "alpha",
   "settingsExperimentalAlphaDescription": "This feature is in alpha and may not work as intended or expected.\nCritical issues and/or permanent critical damage to device and/or used services cannot be ruled out.\nUse at your own risk. No liability on the part of the app author.",
@@ -146,5 +146,5 @@
   "settingsGithub": "GitHub",
   "settingsReportIssue": "Report Issue",
   "settingsLicenses": "Licenses",
-  "settingsVersion": "Ollama App v{version}"
+  "settingsVersion": "Baymin v{version}"
 }

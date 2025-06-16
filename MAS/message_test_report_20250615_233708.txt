@@ -1,0 +1,19 @@
+MAS MESSAGE COMMUNICATION TEST REPORT
+============================================================
+Test Date: 2025-06-15 23:37:08
+Server URL: http://localhost:8000
+============================================================
+
+Test Results:
+PASS   Server Connection              Server version: 1.0.0
+PASS   API: /api/messages/online      Online devices endpoint
+PASS   API: /api/messages/sessions    Sessions endpoint
+PASS   API: /api/messages/unread      Unread count endpoint
+PASS   API: /api/sync/devices         Device discovery endpoint
+PASS   API: /api/sync/device/info     Device info endpoint
+FAIL   WebSocket Connection           403, message='Invalid response status', url=URL('ws://localhost:8000/api/messages/ws/test-ws-validator')
+FAIL   Message Sending                Send failed: {"detail":"Recipient device not found"}
+FAIL   Message Storage                Failed to retrieve messages
+PASS   Device Discovery               Found 2 devices
+
+Summary: 7/10 tests passed (70.0%)

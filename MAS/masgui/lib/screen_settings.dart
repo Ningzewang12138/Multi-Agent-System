@@ -10,6 +10,8 @@ import 'worker/desktop.dart';
 import 'worker/setter.dart';
 import 'services/multi_agent_service.dart';
 import 'config/app_config.dart';
+import 'config/icon_sizes.dart';
+import 'config/logo_animation_config.dart';
 
 import 'package:masgui/l10n/gen/app_localizations.dart';
 
@@ -723,17 +725,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                                                     if (iconSize != 1) return;
                                                     heavyHaptic();
                                                     setState(() {
-                                                      iconSize = 0.8;
+                                                      iconSize = LogoAnimationConfig.dramaticScaleMin;  // 使用更夸张的缩放
                                                     });
                                                     await Future.delayed(
                                                         const Duration(
-                                                            milliseconds: 200));
+                                                            milliseconds: LogoAnimationConfig.shrinkDuration));
                                                     setState(() {
-                                                      iconSize = 1.2;
+                                                      iconSize = LogoAnimationConfig.dramaticScaleMax;
                                                     });
                                                     await Future.delayed(
                                                         const Duration(
-                                                            milliseconds: 200));
+                                                            milliseconds: LogoAnimationConfig.expandDuration));
                                                     setState(() {
                                                       iconSize = 1;
                                                     });
@@ -741,11 +743,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                                                   child: AnimatedScale(
                                                     scale: iconSize,
                                                     duration: const Duration(
-                                                        milliseconds: 400),
-                                                    child: const ImageIcon(
-                                                        AssetImage(
-                                                            "assets/logo512.png"),
-                                                        size: 44),
+                                                        milliseconds: LogoAnimationConfig.scaleDuration),
+                                                    child: Image.asset(
+                                                        "assets/logo512.png",
+                                                        width: IconSizes.chatLogo,
+                                                        height: IconSizes.chatLogo),
                                                   ),
                                                 ))),
                                                 Transform.translate(

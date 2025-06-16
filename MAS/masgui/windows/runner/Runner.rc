@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "JHubi1" "\0"
-            VALUE "FileDescription", "Ollama App executable" "\0"
+            VALUE "FileDescription", "Baymin executable" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "ollama_app" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 JHubi1. All rights reserved." "\0"
             VALUE "OriginalFilename", "ollama.exe" "\0"
-            VALUE "ProductName", "Ollama App" "\0"
+            VALUE "ProductName", "Baymin" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

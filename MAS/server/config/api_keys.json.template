@@ -1,0 +1,7 @@
+{
+  "_comment": "This is a template for API keys configuration. Copy this file to 'api_keys.json' and fill in your actual API keys.",
+  "amap_api_key": "YOUR_AMAP_API_KEY_HERE",
+  "openweather_api_key": "YOUR_OPENWEATHER_API_KEY_HERE",
+  "google_maps_api_key": "YOUR_GOOGLE_MAPS_API_KEY_HERE",
+  "_note": "Keep this file secure and never commit it to version control!"
+}

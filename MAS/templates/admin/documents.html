@@ -1,0 +1,312 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1>Document Management</h1>
+
+<div class="card">
+    <h2 id="kb-name">Loading...</h2>
+    <div style="margin-bottom: 1rem;">
+        <button class="button" onclick="loadDocuments()">Refresh</button>
+        <button class="button" onclick="history.back()">Back to Knowledge Bases</button>
+        <select id="filter-type" onchange="filterDocuments()" style="margin-left: 1rem; padding: 0.5rem;">
+            <option value="all">All Documents</option>
+            <option value="pdf">PDF Only</option>
+            <option value="txt">Text Only</option>
+            <option value="doc">Word Documents</option>
+        </select>
+    </div>
+    
+    <div id="stats" style="margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+        <span>Total Documents: <strong id="total-docs">0</strong></span> | 
+        <span>Total Size: <strong id="total-size">0 KB</strong></span>
+    </div>
+    
+    <table id="doc-table">
+        <thead>
+            <tr>
+                <th style="width: 40px;">
+                    <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                </th>
+                <th>Document ID</th>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Type</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="7" style="text-align: center;">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 1rem;">
+        <button class="button danger" onclick="deleteSelectedDocuments()" id="delete-selected" disabled>
+            Delete Selected (<span id="selected-count">0</span>)
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Danger Zone</h2>
+    <p style="margin-bottom: 1rem;">These actions cannot be undone.</p>
+    <button class="button danger" onclick="cleanupKnowledgeBase()">
+        Delete All Documents
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 从URL获取知识库ID
+const pathParts = window.location.pathname.split('/');
+const kbId = pathParts[pathParts.length - 2];
+
+let documents = [];
+let selectedDocuments = new Set();
+
+async function loadKnowledgeBaseInfo() {
+    try {
+        const response = await fetch(`/api/knowledge/${kbId}`);
+        const kb = await response.json();
+        document.getElementById('kb-name').textContent = `Documents in: ${kb.name}`;
+    } catch (error) {
+        console.error('Error loading knowledge base info:', error);
+    }
+}
+
+async function loadDocuments() {
+    try {
+        const response = await fetch(`/api/knowledge/${kbId}/documents?limit=1000`);
+        const data = await response.json();
+        
+        documents = data.documents || [];
+        updateDocumentTable(documents);
+        updateStats();
+        
+        // 重置选择
+        selectedDocuments.clear();
+        updateDeleteButton();
+        
+    } catch (error) {
+        console.error('Error loading documents:', error);
+        document.querySelector('#doc-table tbody').innerHTML = 
+            '<tr><td colspan="7" style="text-align: center; color: red;">Error loading documents</td></tr>';
+    }
+}
+
+function updateDocumentTable(docs) {
+    const tbody = document.querySelector('#doc-table tbody');
+    tbody.innerHTML = '';
+    
+    if (docs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No documents found</td></tr>';
+        return;
+    }
+    
+    docs.forEach(doc => {
+        const row = document.createElement('tr');
+        const metadata = doc.metadata || {};
+        const filename = metadata.original_filename || metadata.filename || 'Unknown';
+        const fileSize = formatFileSize(metadata.file_size || 0);
+        const extension = metadata.extension || 'txt';
+        const createdAt = new Date(doc.created_at || metadata.added_at).toLocaleString();
+        
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" value="${doc.id}" onchange="toggleDocumentSelection('${doc.id}')">
+            </td>
+            <td style="font-family: monospace; font-size: 0.875rem;">${doc.id.substring(0, 8)}...</td>
+            <td>${filename}</td>
+            <td>${fileSize}</td>
+            <td><span class="status-badge">${extension.toUpperCase()}</span></td>
+            <td>${createdAt}</td>
+            <td>
+                <button class="button danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                        onclick="deleteDocument('${doc.id}')">Delete</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function updateStats() {
+    const totalDocs = documents.length;
+    let totalSize = 0;
+    
+    documents.forEach(doc => {
+        const size = doc.metadata?.file_size || 0;
+        totalSize += size;
+    });
+    
+    document.getElementById('total-docs').textContent = totalDocs;
+    document.getElementById('total-size').textContent = formatFileSize(totalSize);
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('select-all').checked;
+    const checkboxes = document.querySelectorAll('#doc-table tbody input[type="checkbox"]');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll;
+        if (selectAll) {
+            selectedDocuments.add(cb.value);
+        } else {
+            selectedDocuments.delete(cb.value);
+        }
+    });
+    
+    updateDeleteButton();
+}
+
+function toggleDocumentSelection(docId) {
+    if (selectedDocuments.has(docId)) {
+        selectedDocuments.delete(docId);
+    } else {
+        selectedDocuments.add(docId);
+    }
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const count = selectedDocuments.size;
+    document.getElementById('selected-count').textContent = count;
+    document.getElementById('delete-selected').disabled = count === 0;
+}
+
+async function deleteDocument(docId) {
+    if (!confirm('Are you sure you want to delete this document?')) return;
+    
+    try {
+        const response = await fetch(`/api/knowledge/${kbId}/documents/${docId}`, {
+            method: 'DELETE',
+            headers: {
+                'x-admin-key': 'mas-server-admin'
+            }
+        });
+        
+        if (response.ok) {
+            alert('Document deleted successfully');
+            loadDocuments();
+        } else {
+            throw new Error('Failed to delete document');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function deleteSelectedDocuments() {
+    const count = selectedDocuments.size;
+    if (count === 0) return;
+    
+    if (!confirm(`Are you sure you want to delete ${count} document(s)?`)) return;
+    
+    try {
+        const response = await fetch(`/api/knowledge/${kbId}/documents/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'mas-server-admin'
+            },
+            body: JSON.stringify({
+                document_ids: Array.from(selectedDocuments)
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Deleted ${result.deleted_count} documents successfully`);
+            loadDocuments();
+        } else {
+            throw new Error('Failed to delete documents');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function cleanupKnowledgeBase() {
+    if (!confirm('WARNING: This will delete ALL documents in this knowledge base. This action cannot be undone. Are you sure?')) {
+        return;
+    }
+    
+    if (!confirm('Please confirm again: Delete ALL documents?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/knowledge/${kbId}/cleanup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'mas-server-admin'
+            },
+            body: JSON.stringify({
+                delete_all: true,
+                confirm: 'CONFIRM'
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Cleaned up knowledge base: ${result.deleted_count} documents deleted`);
+            loadDocuments();
+        } else {
+            const error = await response.json();
+            alert('Failed to cleanup: ' + error.detail);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+function filterDocuments() {
+    const filterType = document.getElementById('filter-type').value;
+    
+    let filteredDocs = documents;
+    if (filterType !== 'all') {
+        filteredDocs = documents.filter(doc => {
+            const ext = doc.metadata?.extension || 'txt';
+            if (filterType === 'doc') {
+                return ext === 'doc' || ext === 'docx';
+            }
+            return ext === filterType;
+        });
+    }
+    
+    updateDocumentTable(filteredDocs);
+}
+
+// Load data on page load
+window.addEventListener('load', () => {
+    loadKnowledgeBaseInfo();
+    loadDocuments();
+});
+</script>
+
+<style>
+#doc-table {
+    font-size: 0.875rem;
+}
+
+#doc-table th {
+    white-space: nowrap;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+}
+</style>
+{% endblock %}

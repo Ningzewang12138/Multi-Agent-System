@@ -35,7 +35,7 @@
   "modelDialogAddPromptAlreadyExists": "Modell existiert bereits",
   "modelDialogAddPromptInvalid": "Ungültiger Modellname",
   "modelDialogAddAllowanceTitle": "Proxy erlauben",
-  "modelDialogAddAllowanceDescription": "Ollama App muss überprüfen, ob das eingegebene Modell gültig ist. Dafür senden wir normalerweise eine Webanfrage an die Ollama-Modellliste und überprüfen den Statuscode, aber da gerade der Webclient verwendet wird, können wir das nicht direkt tun. Stattdessen sendet die App die Anfrage an eine andere API, gehostet von JHubi1, um dies für uns zu überprüfen.\nDies ist eine einmalige Anfrage und wird nur gesendet, wenn du ein neues Modell hinzufügst.\nIhre IP-Adresse wird mit der Anfrage gesendet und kann bis zu zehn Minuten gespeichert werden, um Spamming mit potenziell schädlichen Absichten zu verhindern.\nWenn du zustimmst, wird deine Auswahl für die Zukunft gespeichert; wenn nicht, wird nichts gesendet und das Modell wird nicht hinzugefügt.",
+  "modelDialogAddAllowanceDescription": "Baymin muss überprüfen, ob das eingegebene Modell gültig ist. Dafür senden wir normalerweise eine Webanfrage an die Ollama-Modellliste und überprüfen den Statuscode, aber da gerade der Webclient verwendet wird, können wir das nicht direkt tun. Stattdessen sendet die App die Anfrage an eine andere API, gehostet von JHubi1, um dies für uns zu überprüfen.\nDies ist eine einmalige Anfrage und wird nur gesendet, wenn du ein neues Modell hinzufügst.\nIhre IP-Adresse wird mit der Anfrage gesendet und kann bis zu zehn Minuten gespeichert werden, um Spamming mit potenziell schädlichen Absichten zu verhindern.\nWenn du zustimmst, wird deine Auswahl für die Zukunft gespeichert; wenn nicht, wird nichts gesendet und das Modell wird nicht hinzugefügt.",
   "modelDialogAddAllowanceAllow": "Erlauben",
   "modelDialogAddAllowanceDeny": "Ablehnen",
   "modelDialogAddAssuranceTitle": "{model} hinzufügen?",
@@ -55,13 +55,13 @@
   "settingsTitleBehavior": "Verhalten",
   "settingsDescriptionBehavior": "Ändere das Verhalten der KI nach deinen Wünschen.",
   "settingsTitleInterface": "Oberfläche",
-  "settingsDescriptionInterface": "Bearbeite das Aussehen und Verhalten von Ollama App.",
+  "settingsDescriptionInterface": "Bearbeite das Aussehen und Verhalten von Baymin.",
   "settingsTitleVoice": "Voice",
   "settingsDescriptionVoice": "Voice Mode aktivieren und Spracheinstellungen anpassen.",
   "settingsTitleExport": "Exportieren",
   "settingsDescriptionExport": "Exportiere und importiere deinen Chat-Verlauf.",
   "settingsTitleAbout": "Über",
-  "settingsDescriptionAbout": "Suche nach Updates und erfahre mehr über Ollama App.",
+  "settingsDescriptionAbout": "Suche nach Updates und erfahre mehr über Baymin.",
   "settingsSavedAutomatically": "Einstellungen werden automatisch gespeichert",
   "settingsExperimentalAlpha": "alpha",
   "settingsExperimentalAlphaDescription": "Diese Funktion befindet sich im Alpha-Status und funktioniert möglicherweise nicht wie beabsichtigt oder erwartet.\nKritische Probleme und/oder dauerhafte kritische Schäden am Gerät und/oder den verwendeten Diensten können nicht ausgeschlossen werden.\nBenutzung auf eigene Gefahr. Keine Haftung seitens des App-Autors.",
@@ -146,5 +146,5 @@
   "settingsGithub": "GitHub",
   "settingsReportIssue": "Einen Fehler melden",
   "settingsLicenses": "Lizenzen",
-  "settingsVersion": "Ollama App v{version}"
+  "settingsVersion": "Baymin v{version}"
 }

@@ -116,7 +116,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get modelDialogAddAllowanceDescription =>
-      'Ollama App must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly. Instead, the app will send the request to a different api, hosted by JHubi1, to check for us.\nThis is a one-time request and will only be sent when you add a new model.\nYour IP address will be sent with the request and might be stored for up to ten minutes to prevent spamming with potential harmful intentions.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.';
+      'Baymin must check if the entered model is valid. For that, we normally send a web request to the Ollama model list and check the status code, but because you\'re using the web client, we can\'t do that directly. Instead, the app will send the request to a different api, hosted by JHubi1, to check for us.\nThis is a one-time request and will only be sent when you add a new model.\nYour IP address will be sent with the request and might be stored for up to ten minutes to prevent spamming with potential harmful intentions.\nIf you accept, your selection will be remembered in the future; if not, nothing will be sent and the model won\'t be added.';
 
   @override
   String get modelDialogAddAllowanceAllow => 'Allow';
@@ -185,7 +185,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsDescriptionInterface =>
-      'Edit how Ollama App looks and behaves.';
+      'Edit how Baymin looks and behaves.';
 
   @override
   String get settingsTitleVoice => 'Voice';
@@ -206,7 +206,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsDescriptionAbout =>
-      'Check for updates and learn more about Ollama App.';
+      'Check for updates and learn more about Baymin.';
 
   @override
   String get settingsSavedAutomatically => 'Settings are saved automatically';
@@ -507,6 +507,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String settingsVersion(String version) {
-    return 'Ollama App v$version';
+    return 'Baymin v$version';
   }
 }

@@ -55,13 +55,13 @@
   "settingsTitleBehavior": "行为",
   "settingsDescriptionBehavior": "根据您的喜好修改AI的行为",
   "settingsTitleInterface": "界面",
-  "settingsDescriptionInterface": "修改 Ollama App的外观和行为",
+  "settingsDescriptionInterface": "修改 Baymin的外观和行为",
   "settingsTitleVoice": "语音",
   "settingsDescriptionVoice": "启用语音模式并进行设置。",
   "settingsTitleExport": "导出",
   "settingsDescriptionExport": "导出和导入您的聊天记录。",
   "settingsTitleAbout": "关于",
-  "settingsDescriptionAbout": "检查更新并了解更多关于Ollama App的信息。",
+  "settingsDescriptionAbout": "检查更新并了解更多关于Baymin的信息。",
   "settingsSavedAutomatically": "设置已自动保存",
   "settingsExperimentalAlpha": "alpha",
   "settingsExperimentalAlphaDescription": "此功能处于 Alpha 测试阶段，可能无法按预期工作。\n无法排除会对设备、服务造成严重问题或永久性重大损害。\n使用需自行承担风险。应用作者不承担任何责任。",
@@ -146,5 +146,5 @@
   "settingsGithub": "GitHub",
   "settingsReportIssue": "问题反馈",
   "settingsLicenses": "开源许可证",
-  "settingsVersion": "Ollama App v{version}"
+  "settingsVersion": "Baymin v{version}"
 }

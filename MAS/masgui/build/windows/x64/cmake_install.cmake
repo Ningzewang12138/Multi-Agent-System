@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "$<TARGET_FILE_DIR:ollama>")
+  set(CMAKE_INSTALL_PREFIX "$<TARGET_FILE_DIR:Baymin>")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -49,6 +49,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/connectivity_plus/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/dynamic_color/cmake_install.cmake")
 endif()
 
@@ -69,6 +74,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/share_plus/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/url_launcher_windows/cmake_install.cmake")
 endif()
 
@@ -80,34 +90,34 @@ endif()
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/ollama.exe")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/Baymin.exe")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
     if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
-    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/ollama.exe")
+    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/Baymin.exe")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Pp][Rr][Oo][Ff][Ii][Ll][Ee])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/ollama.exe")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/Baymin.exe")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
     if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
-    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/ollama.exe")
+    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/Baymin.exe")
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/ollama.exe")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/Baymin.exe")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
     if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
-    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/ollama.exe")
+    file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release" TYPE EXECUTABLE FILES "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/Baymin.exe")
   endif()
 endif()
 
@@ -182,7 +192,7 @@ endif()
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/volume_controller_plugin.dll")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/connectivity_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/share_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug/volume_controller_plugin.dll")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
@@ -191,16 +201,18 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
     endif()
     file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Debug" TYPE FILE FILES
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/bitsdojo_window_windows/Debug/bitsdojo_window_windows_plugin.lib"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/connectivity_plus/Debug/connectivity_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/dynamic_color/Debug/dynamic_color_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/file_selector_windows/Debug/file_selector_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/flutter_tts/Debug/flutter_tts_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows/Debug/permission_handler_windows_plugin.dll"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/share_plus/Debug/share_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/url_launcher_windows/Debug/url_launcher_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/volume_controller/Debug/volume_controller_plugin.dll"
       )
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Pp][Rr][Oo][Ff][Ii][Ll][Ee])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/volume_controller_plugin.dll")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/connectivity_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/share_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile/volume_controller_plugin.dll")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
@@ -209,16 +221,18 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
     endif()
     file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Profile" TYPE FILE FILES
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/bitsdojo_window_windows/Profile/bitsdojo_window_windows_plugin.lib"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/connectivity_plus/Profile/connectivity_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/dynamic_color/Profile/dynamic_color_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/file_selector_windows/Profile/file_selector_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/flutter_tts/Profile/flutter_tts_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows/Profile/permission_handler_windows_plugin.dll"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/share_plus/Profile/share_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/url_launcher_windows/Profile/url_launcher_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/volume_controller/Profile/volume_controller_plugin.dll"
       )
   elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
     list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/volume_controller_plugin.dll")
+     "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/bitsdojo_window_windows_plugin.lib;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/connectivity_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/dynamic_color_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/file_selector_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/flutter_tts_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/permission_handler_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/share_plus_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/url_launcher_windows_plugin.dll;D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release/volume_controller_plugin.dll")
     if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
       message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
     endif()
@@ -227,10 +241,12 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
     endif()
     file(INSTALL DESTINATION "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/Release" TYPE FILE FILES
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/bitsdojo_window_windows/Release/bitsdojo_window_windows_plugin.lib"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/connectivity_plus/Release/connectivity_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/dynamic_color/Release/dynamic_color_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/file_selector_windows/Release/file_selector_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/flutter_tts/Release/flutter_tts_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows/Release/permission_handler_windows_plugin.dll"
+      "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/share_plus/Release/share_plus_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/url_launcher_windows/Release/url_launcher_windows_plugin.dll"
       "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/volume_controller/Release/volume_controller_plugin.dll"
       )
