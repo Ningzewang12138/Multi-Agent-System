@@ -1,4 +1,4 @@
-# Install script for directory: D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/windows
+# Install script for directory: D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/windows
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,6 +35,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows/install_local_manifest.txt"
+  file(WRITE "D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64/plugins/permission_handler_windows/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

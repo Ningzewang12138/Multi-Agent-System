@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 from server.mcp.manager import mcp_manager
-from server.services.mcp_workspace_service import workspace_service
+from server.services.mcp_Codespace_service import Codespace_service
 
 logger = logging.getLogger(__name__)
 
@@ -46,16 +46,16 @@ class ToolCallResponse(BaseModel):
     error: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
     session_id: str
-    workspace_info: Optional[Dict[str, Any]] = None
+    Codespace_info: Optional[Dict[str, Any]] = None
 
-class WorkspaceFileInfo(BaseModel):
+class CodespaceFileInfo(BaseModel):
     """工作空间文件信息"""
     name: str
     size: int
     modified: str
     is_directory: bool
 
-class CreateWorkspaceRequest(BaseModel):
+class CreateCodespaceRequest(BaseModel):
     """创建工作空间请求"""
     device_id: str = Field(..., description="设备ID")
     session_id: Optional[str] = Field(None, description="会话ID")
@@ -163,15 +163,15 @@ async def execute_mcp_tool(
         logger.info(f"Executing MCP tool: {tool_request.tool_name} for device: {tool_request.device_id}")
         
         # 创建或获取工作空间
-        session_id, workspace_path = workspace_service.create_workspace(
+        session_id, Codespace_path = Codespace_service.create_Codespace(
             device_id=tool_request.device_id,
             session_id=tool_request.session_id
         )
         
-        # 如果参数中包含workspace相关的路径，替换为实际工作空间路径
-        processed_params = _process_workspace_paths(
+        # 如果参数中包含Codespace相关的路径，替换为实际工作空间路径
+        processed_params = _process_Codespace_paths(
             tool_request.parameters,
-            workspace_path
+            Codespace_path
         )
         
         # 执行工具
@@ -188,13 +188,13 @@ async def execute_mcp_tool(
                 content = output_file.get("content", "")
                 
                 if isinstance(content, str):
-                    workspace_service.save_text_to_workspace(
+                    Codespace_service.save_text_to_Codespace(
                         session_id=session_id,
                         filename=filename,
                         content=content
                     )
                 elif isinstance(content, bytes):
-                    workspace_service.save_file_to_workspace(
+                    Codespace_service.save_file_to_Codespace(
                         session_id=session_id,
                         filename=filename,
                         content=content
@@ -207,10 +207,10 @@ async def execute_mcp_tool(
             error=result.error,
             metadata=result.metadata,
             session_id=session_id,
-            workspace_info={
+            Codespace_info={
                 "session_id": session_id,
-                "workspace_path": str(workspace_path),
-                "files": workspace_service.list_files_in_workspace(session_id)
+                "Codespace_path": str(Codespace_path),
+                "files": Codespace_service.list_files_in_Codespace(session_id)
             }
         )
         
@@ -221,57 +221,57 @@ async def execute_mcp_tool(
         logger.error(f"Failed to execute MCP tool: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/workspace/create")
-async def create_workspace(
+@router.post("/Codespace/create")
+async def create_Codespace(
     request: Request,
-    workspace_request: CreateWorkspaceRequest
+    Codespace_request: CreateCodespaceRequest
 ):
     """创建工作空间"""
     try:
-        session_id, workspace_path = workspace_service.create_workspace(
-            device_id=workspace_request.device_id,
-            session_id=workspace_request.session_id
+        session_id, Codespace_path = Codespace_service.create_Codespace(
+            device_id=Codespace_request.device_id,
+            session_id=Codespace_request.session_id
         )
         
         return {
             "session_id": session_id,
-            "workspace_path": str(workspace_path),
+            "Codespace_path": str(Codespace_path),
             "created_at": datetime.now().isoformat()
         }
         
     except Exception as e:
-        logger.error(f"Failed to create workspace: {e}")
+        logger.error(f"Failed to create Codespace: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/workspace/{session_id}/files", response_model=List[WorkspaceFileInfo])
-async def list_workspace_files(
+@router.get("/Codespace/{session_id}/files", response_model=List[CodespaceFileInfo])
+async def list_Codespace_files(
     session_id: str,
     request: Request
 ):
     """列出工作空间中的文件"""
     try:
-        files = workspace_service.list_files_in_workspace(session_id)
+        files = Codespace_service.list_files_in_Codespace(session_id)
         
-        if not files and not workspace_service.get_workspace(session_id):
-            raise HTTPException(status_code=404, detail="Workspace not found")
+        if not files and not Codespace_service.get_Codespace(session_id):
+            raise HTTPException(status_code=404, detail="Codespace not found")
         
-        return [WorkspaceFileInfo(**f) for f in files]
+        return [CodespaceFileInfo(**f) for f in files]
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to list workspace files: {e}")
+        logger.error(f"Failed to list Codespace files: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/workspace/{session_id}/file/{filename}")
-async def download_workspace_file(
+@router.get("/Codespace/{session_id}/file/{filename}")
+async def download_Codespace_file(
     session_id: str,
     filename: str,
     request: Request
 ):
     """下载工作空间中的文件"""
     try:
-        content = workspace_service.read_file_from_workspace(session_id, filename)
+        content = Codespace_service.read_file_from_Codespace(session_id, filename)
         
         if content is None:
             raise HTTPException(status_code=404, detail="File not found")
@@ -296,11 +296,11 @@ async def download_workspace_file(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to download workspace file: {e}")
+        logger.error(f"Failed to download Codespace file: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/workspace/{session_id}/upload")
-async def upload_to_workspace(
+@router.post("/Codespace/{session_id}/upload")
+async def upload_to_Codespace(
     session_id: str,
     request: Request,
     file: UploadFile = File(...),
@@ -315,14 +315,14 @@ async def upload_to_workspace(
         content = await file.read()
         
         # 保存到工作空间
-        saved_path = workspace_service.save_file_to_workspace(
+        saved_path = Codespace_service.save_file_to_Codespace(
             session_id=session_id,
             filename=target_filename,
             content=content
         )
         
         if not saved_path:
-            raise HTTPException(status_code=404, detail="Workspace not found")
+            raise HTTPException(status_code=404, detail="Codespace not found")
         
         return {
             "message": "File uploaded successfully",
@@ -334,63 +334,63 @@ async def upload_to_workspace(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to upload file to workspace: {e}")
+        logger.error(f"Failed to upload file to Codespace: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/workspace/{session_id}")
-async def delete_workspace(
+@router.delete("/Codespace/{session_id}")
+async def delete_Codespace(
     session_id: str,
     request: Request
 ):
     """删除工作空间"""
     try:
-        success = workspace_service.delete_workspace(session_id)
+        success = Codespace_service.delete_Codespace(session_id)
         
         if not success:
-            raise HTTPException(status_code=404, detail="Workspace not found")
+            raise HTTPException(status_code=404, detail="Codespace not found")
         
-        return {"message": f"Workspace {session_id} deleted successfully"}
+        return {"message": f"Codespace {session_id} deleted successfully"}
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to delete workspace: {e}")
+        logger.error(f"Failed to delete Codespace: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/workspace/list")
-async def list_workspaces(
+@router.get("/Codespace/list")
+async def list_Codespaces(
     request: Request,
     device_id: Optional[str] = None
 ):
     """列出工作空间"""
     try:
-        workspaces = workspace_service.list_workspaces(device_id)
+        Codespaces = Codespace_service.list_Codespaces(device_id)
         
         return {
-            "workspaces": workspaces,
-            "total": len(workspaces)
+            "Codespaces": Codespaces,
+            "total": len(Codespaces)
         }
         
     except Exception as e:
-        logger.error(f"Failed to list workspaces: {e}")
+        logger.error(f"Failed to list Codespaces: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/workspace/cleanup")
-async def cleanup_workspaces(
+@router.post("/Codespace/cleanup")
+async def cleanup_Codespaces(
     request: Request,
     max_age_hours: int = 24
 ):
     """清理旧的工作空间"""
     try:
-        cleaned_count = workspace_service.cleanup_old_workspaces(max_age_hours)
+        cleaned_count = Codespace_service.cleanup_old_Codespaces(max_age_hours)
         
         return {
-            "message": f"Cleaned up {cleaned_count} old workspaces",
+            "message": f"Cleaned up {cleaned_count} old Codespaces",
             "max_age_hours": max_age_hours
         }
         
     except Exception as e:
-        logger.error(f"Failed to cleanup workspaces: {e}")
+        logger.error(f"Failed to cleanup Codespaces: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ========== 辅助函数 ==========
@@ -406,7 +406,7 @@ def _get_category_description(category: str) -> str:
     }
     return descriptions.get(category, f"{category.title()} tools")
 
-def _process_workspace_paths(parameters: Dict[str, Any], workspace_path) -> Dict[str, Any]:
+def _process_Codespace_paths(parameters: Dict[str, Any], Codespace_path) -> Dict[str, Any]:
     """处理参数中的工作空间路径"""
     processed = parameters.copy()
     
@@ -414,10 +414,10 @@ def _process_workspace_paths(parameters: Dict[str, Any], workspace_path) -> Dict
     for key, value in processed.items():
         if isinstance(value, str):
             # 替换工作空间占位符
-            if value.startswith("@workspace/"):
-                filename = value[11:]  # 移除 "@workspace/" 前缀
-                processed[key] = str(workspace_path / filename)
-            elif value == "@workspace":
-                processed[key] = str(workspace_path)
+            if value.startswith("@Codespace/"):
+                filename = value[11:]  # 移除 "@Codespace/" 前缀
+                processed[key] = str(Codespace_path / filename)
+            elif value == "@Codespace":
+                processed[key] = str(Codespace_path)
     
     return processed

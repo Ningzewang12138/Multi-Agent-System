@@ -1,0 +1,32 @@
+[
+  {
+    "id": "54176077-f47a-43bf-bfe0-5e8f7a88524a",
+    "from_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "to_device_id": "6bec80b2-79ab-4817-ac11-f3bacf297daf",
+    "content": "Hi! \ud83d\udc4b",
+    "message_type": "text",
+    "timestamp": "2025-06-16T23:17:48.117930",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "be074775-8a31-487d-8ca9-33ca33ef7551",
+    "from_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "to_device_id": "6bec80b2-79ab-4817-ac11-f3bacf297daf",
+    "content": "hi",
+    "message_type": "text",
+    "timestamp": "2025-06-16T23:17:59.535907",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "3faa6a7e-3996-491b-9e58-0ab8d34cfc46",
+    "from_device_id": "6bec80b2-79ab-4817-ac11-f3bacf297daf",
+    "to_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "content": "Hello back",
+    "message_type": "text",
+    "timestamp": "2025-06-16T23:18:50.906064",
+    "status": "read",
+    "metadata": null
+  }
+]

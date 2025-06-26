@@ -60,7 +60,7 @@ class ToolCallResult {
   final String? error;
   final Map<String, dynamic> metadata;
   final String sessionId;
-  final Map<String, dynamic>? workspaceInfo;
+  final Map<String, dynamic>? CodespaceInfo;
 
   ToolCallResult({
     required this.success,
@@ -68,7 +68,7 @@ class ToolCallResult {
     this.error,
     required this.metadata,
     required this.sessionId,
-    this.workspaceInfo,
+    this.CodespaceInfo,
   });
 
   factory ToolCallResult.fromJson(Map<String, dynamic> json) {
@@ -78,29 +78,29 @@ class ToolCallResult {
       error: json['error'],
       metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
       sessionId: json['session_id'],
-      workspaceInfo: json['workspace_info'] != null
-          ? Map<String, dynamic>.from(json['workspace_info'])
+      CodespaceInfo: json['Codespace_info'] != null
+          ? Map<String, dynamic>.from(json['Codespace_info'])
           : null,
     );
   }
 }
 
 /// 工作空间文件信息
-class WorkspaceFileInfo {
+class CodespaceFileInfo {
   final String name;
   final int size;
   final String modified;
   final bool isDirectory;
 
-  WorkspaceFileInfo({
+  CodespaceFileInfo({
     required this.name,
     required this.size,
     required this.modified,
     required this.isDirectory,
   });
 
-  factory WorkspaceFileInfo.fromJson(Map<String, dynamic> json) {
-    return WorkspaceFileInfo(
+  factory CodespaceFileInfo.fromJson(Map<String, dynamic> json) {
+    return CodespaceFileInfo(
       name: json['name'],
       size: json['size'],
       modified: json['modified'],
@@ -195,7 +195,7 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 创建工作空间
-  Future<Map<String, dynamic>?> createWorkspace({String? sessionId}) async {
+  Future<Map<String, dynamic>?> createCodespace({String? sessionId}) async {
     try {
       final deviceId = await _deviceIdService.getDeviceId();
       
@@ -205,7 +205,7 @@ class MCPService extends ChangeNotifier {
       };
 
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/mcp/workspace/create'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/create'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
@@ -225,16 +225,16 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 列出工作空间文件
-  Future<List<WorkspaceFileInfo>> listWorkspaceFiles(String sessionId) async {
+  Future<List<CodespaceFileInfo>> listCodespaceFiles(String sessionId) async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/mcp/workspace/$sessionId/files'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/$sessionId/files'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((item) => WorkspaceFileInfo.fromJson(item)).toList();
+        return data.map((item) => CodespaceFileInfo.fromJson(item)).toList();
       } else {
         _error = '获取文件列表失败: ${response.statusCode}';
         return [];
@@ -246,13 +246,13 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 下载工作空间文件
-  Future<Map<String, dynamic>?> downloadWorkspaceFile(
+  Future<Map<String, dynamic>?> downloadCodespaceFile(
     String sessionId,
     String filename,
   ) async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/mcp/workspace/$sessionId/file/$filename'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/$sessionId/file/$filename'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -269,7 +269,7 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 上传文件到工作空间
-  Future<bool> uploadFileToWorkspace(
+  Future<bool> uploadFileToCodespace(
     String sessionId,
     String filename,
     List<int> bytes,
@@ -277,7 +277,7 @@ class MCPService extends ChangeNotifier {
     try {
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('$_baseUrl/api/mcp/workspace/$sessionId/upload'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/$sessionId/upload'),
       );
 
       request.files.add(
@@ -303,10 +303,10 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 删除工作空间
-  Future<bool> deleteWorkspace(String sessionId) async {
+  Future<bool> deleteCodespace(String sessionId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$_baseUrl/api/mcp/workspace/$sessionId'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/$sessionId'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -326,10 +326,10 @@ class MCPService extends ChangeNotifier {
   }
 
   /// 清理旧的工作空间
-  Future<void> cleanupOldWorkspaces({int maxAgeHours = 24}) async {
+  Future<void> cleanupOldCodespaces({int maxAgeHours = 24}) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/mcp/workspace/cleanup'),
+        Uri.parse('$_baseUrl/api/mcp/Codespace/cleanup'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'max_age_hours': maxAgeHours}),
       );

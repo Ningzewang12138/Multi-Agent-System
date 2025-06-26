@@ -10,27 +10,7 @@ import time
 import asyncio
 from server.services.vector_db_service import VectorDBService
 from server.services.embedding_manager import EmbeddingManager
-from server.mcp.manager import mcp_manager, ToolCall
-# 使用极简版本
-try:
-    from server.services.tool_enhanced_chat_service_minimal import ToolEnhancedChatService
-except ImportError:
-    try:
-        from server.services.tool_enhanced_chat_service_intent_fixed import ToolEnhancedChatService
-    except ImportError:
-        try:
-            from server.services.tool_enhanced_chat_service_intent import ToolEnhancedChatService
-        except ImportError:
-            try:
-                from server.services.tool_enhanced_chat_service_ultra_simple import ToolEnhancedChatService
-            except ImportError:
-                try:
-                    from server.services.tool_enhanced_chat_service_simple import ToolEnhancedChatService
-                except ImportError:
-                    try:
-                        from server.services.tool_enhanced_chat_service_v2 import ToolEnhancedChatService
-                    except ImportError:
-                        from server.services.tool_enhanced_chat_service import ToolEnhancedChatService
+#from server.mcp.manager import mcp_manager, ToolCall
 
 
 # 添加路径
@@ -57,27 +37,27 @@ class ChatRequest(BaseModel):
     max_tokens: Optional[int] = None
     tools: Optional[List[Dict[str, Any]]] = Field(default=None, description="Available tools in OpenAI format")
     tool_choice: Optional[str] = Field(default="auto", description="Tool choice strategy: auto, none, or specific tool name")
-    session_id: Optional[str] = Field(default=None, description="Session ID for workspace management")
+    session_id: Optional[str] = Field(default=None, description="Session ID for Codespace management")
 
 def get_ollama_service(request: Request) -> OllamaService:
     """从 FastAPI 应用状态获取 OllamaService"""
     return request.app.state.services.ollama_service
 
-def get_tool_chat_service(request: Request) -> ToolEnhancedChatService:
+'''def get_tool_chat_service(request: Request) -> ToolEnhancedChatService:
     """获取工具增强的聊天服务"""
     ollama_service = request.app.state.services.ollama_service
     if not hasattr(request.app.state.services, 'tool_chat_service'):
         request.app.state.services.tool_chat_service = ToolEnhancedChatService(
             ollama_service
         )
-    return request.app.state.services.tool_chat_service
+    return request.app.state.services.tool_chat_service'''
 
 @router.post("/completions")
 async def chat_completions(
     request: Request,
     chat_request: ChatRequest,
     ollama: OllamaService = Depends(get_ollama_service),
-    tool_chat: ToolEnhancedChatService = Depends(get_tool_chat_service)
+    #tool_chat: ToolEnhancedChatService = Depends(get_tool_chat_service)
 ):
     """处理聊天请求（支持工具调用）"""
     if ollama is None:

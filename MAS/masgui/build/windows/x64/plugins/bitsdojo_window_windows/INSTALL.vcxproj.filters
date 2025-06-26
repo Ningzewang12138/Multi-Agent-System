@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\b0cf697c5f669c597cb2db79af833e14\INSTALL_force.rule">
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\0f6fcd52cd7bfc112b4ce7e511f96863\INSTALL_force.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{B83909BC-080A-3738-AF87-B61B03C4697B}</UniqueIdentifier>
+      <UniqueIdentifier>{76322980-8B5F-3C34-8132-C087AA6136E9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

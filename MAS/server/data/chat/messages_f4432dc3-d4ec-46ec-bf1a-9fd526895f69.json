@@ -1,0 +1,52 @@
+[
+  {
+    "id": "f057d0d2-a1f0-4ffd-8fb6-bbec54130fa2",
+    "from_device_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "to_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "content": "Hi! \ud83d\udc4b",
+    "message_type": "text",
+    "timestamp": "2025-06-22T01:10:12.648189",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "6a216f6b-5e38-4226-95f3-cb22a2fc9339",
+    "from_device_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "to_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "content": "\u4f60\u597d",
+    "message_type": "text",
+    "timestamp": "2025-06-22T01:10:20.831281",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "c0cebe41-5fb0-4473-a04b-4507d46a5c29",
+    "from_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "to_device_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "content": "hey there",
+    "message_type": "text",
+    "timestamp": "2025-06-22T01:10:34.413916",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "1edc9216-0e0d-41a0-a68d-8a3bc5c7a7fd",
+    "from_device_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "to_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "content": "hihi",
+    "message_type": "text",
+    "timestamp": "2025-06-22T01:16:00.898337",
+    "status": "read",
+    "metadata": null
+  },
+  {
+    "id": "f044d41b-b792-45b1-9ff5-6adab10fe080",
+    "from_device_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "to_device_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "content": "hello back",
+    "message_type": "text",
+    "timestamp": "2025-06-22T01:16:07.659365",
+    "status": "read",
+    "metadata": null
+  }
+]

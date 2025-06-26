@@ -1,60 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin_c_api.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin_c_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\helper.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_listener.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_listener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_stream_handler.cpp">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_stream_handler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller_plugin_c_api.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller_plugin_c_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\volume_controller_plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\constants.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_callback.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\helper.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_listener.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_listener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_stream_handler.h">
+    <ClInclude Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\include\volume_controller\volume_stream_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\CMakeLists.txt" />
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\.plugin_symlinks\volume_controller\windows\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{974973C6-45CE-3094-B684-64AFCC7F6B65}</UniqueIdentifier>
+      <UniqueIdentifier>{5DC7F482-CB3B-34F5-A8D0-35D20B0D6B9F}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{E51B7B5E-00E2-3ACA-BF3F-323E35731188}</UniqueIdentifier>
+      <UniqueIdentifier>{6F942634-28CF-33DC-A100-4EAD49C3807D}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\c4383350832b9875dee51f8453a6d406\generate.stamp.rule">
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\1fb666d6b487221621729fbc7393eb79\generate.stamp.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{B83909BC-080A-3738-AF87-B61B03C4697B}</UniqueIdentifier>
+      <UniqueIdentifier>{76322980-8B5F-3C34-8132-C087AA6136E9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

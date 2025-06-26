@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../../services/mcp/mcp_service.dart';
-import 'mcp_workspace_screen.dart';
+import 'mcp_Codespace_screen.dart';
 
 class MCPToolExecutionScreen extends StatefulWidget {
   final MCPToolInfo tool;
@@ -53,7 +53,7 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
           if (_result?.sessionId != null)
             IconButton(
               icon: const Icon(Icons.folder_open),
-              onPressed: () => _openWorkspace(context),
+              onPressed: () => _openCodespace(context),
               tooltip: '查看工作空间',
             ),
         ],
@@ -342,7 +342,7 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
                 ),
               ),
             ),
-            if (_result!.workspaceInfo != null) ...[
+            if (_result!.CodespaceInfo != null) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -372,9 +372,9 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
                               color: Colors.blue.shade700,
                             ),
                           ),
-                          if (_result!.workspaceInfo!['files'] != null)
+                          if (_result!.CodespaceInfo!['files'] != null)
                             Text(
-                              '文件数: ${(_result!.workspaceInfo!['files'] as List).length}',
+                              '文件数: ${(_result!.CodespaceInfo!['files'] as List).length}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue.shade700,
@@ -384,7 +384,7 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => _openWorkspace(context),
+                      onPressed: () => _openCodespace(context),
                       child: const Text('查看'),
                     ),
                   ],
@@ -463,7 +463,7 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
     }
   }
 
-  void _openWorkspace(BuildContext context) {
+  void _openCodespace(BuildContext context) {
     if (_result?.sessionId != null) {
       // 先获取MCPService的引用
       final mcpService = context.read<MCPService>();
@@ -473,7 +473,7 @@ class _MCPToolExecutionScreenState extends State<MCPToolExecutionScreen> {
         MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<MCPService>.value(
             value: mcpService,
-            child: MCPWorkspaceScreen(
+            child: MCPCodespaceScreen(
               sessionId: _result!.sessionId,
             ),
           ),

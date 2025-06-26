@@ -1,0 +1,387 @@
+import 'package:flutter/material.dart';
+import '../services/tool_enhanced_chat_service.dart';
+import '../models/chat_models.dart';
+
+/// 工具聊天示例页面
+/// 展示如何正确使用工具增强的聊天服务
+class ToolChatExampleScreen extends StatefulWidget {
+  const ToolChatExampleScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ToolChatExampleScreen> createState() => _ToolChatExampleScreenState();
+}
+
+class _ToolChatExampleScreenState extends State<ToolChatExampleScreen> {
+  final ToolEnhancedChatService _chatService = ToolEnhancedChatService();
+  final TextEditingController _controller = TextEditingController();
+  final List<_ChatItem> _chatItems = [];
+  bool _isLoading = false;
+  bool _useStreaming = true;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendMessage() async {
+    final message = _controller.text.trim();
+    if (message.isEmpty || _isLoading) return;
+
+    _controller.clear();
+    setState(() {
+      _isLoading = true;
+      _chatItems.add(_ChatItem(
+        type: _ChatItemType.userMessage,
+        content: message,
+      ));
+    });
+
+    try {
+      if (_useStreaming) {
+        await _sendStreamingMessage(message);
+      } else {
+        await _sendNonStreamingMessage(message);
+      }
+    } catch (e) {
+      setState(() {
+        _chatItems.add(_ChatItem(
+          type: _ChatItemType.error,
+          content: 'Error: $e',
+        ));
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _sendNonStreamingMessage(String message) async {
+    // 发送消息
+    final response = await _chatService.sendMessage(
+      message: message,
+      useTools: true,
+    );
+
+    // 显示响应
+    if (response.choices.isNotEmpty) {
+      setState(() {
+        _chatItems.add(_ChatItem(
+          type: _ChatItemType.assistantMessage,
+          content: response.choices.first.message.content,
+        ));
+      });
+
+      // 如果有工具执行信息
+      if (response.toolExecution != null && response.toolExecution!.executed) {
+        setState(() {
+          _chatItems.add(_ChatItem(
+            type: _ChatItemType.toolExecution,
+            content: 'Tools executed: ${response.toolExecution!.toolsCalled.join(', ')}',
+            metadata: {
+              'session_id': response.toolExecution!.sessionId,
+              'Codespace_path': response.toolExecution!.CodespacePath,
+            },
+          ));
+        });
+      }
+    }
+  }
+
+  Future<void> _sendStreamingMessage(String message) async {
+    // 准备助手消息项
+    final assistantItem = _ChatItem(
+      type: _ChatItemType.assistantMessage,
+      content: '',
+    );
+    setState(() {
+      _chatItems.add(assistantItem);
+    });
+
+    // 处理流式响应
+    await for (final event in _chatService.sendMessageStream(
+      message: message,
+      useTools: true,
+    )) {
+      if (event is ContentEvent) {
+        // 更新内容
+        setState(() {
+          assistantItem.content += event.content;
+        });
+      } else if (event is ToolCallEvent) {
+        // 显示工具调用
+        setState(() {
+          _chatItems.add(_ChatItem(
+            type: _ChatItemType.toolCall,
+            content: 'Calling tool: ${event.toolName}',
+            metadata: {'call_id': event.callId},
+          ));
+        });
+      } else if (event is ToolResultEvent) {
+        // 显示工具结果
+        final status = event.success ? '✓' : '✗';
+        setState(() {
+          _chatItems.add(_ChatItem(
+            type: _ChatItemType.toolResult,
+            content: '$status Tool result: ${event.result['content'] ?? event.result['error']}',
+            metadata: {'call_id': event.callId},
+          ));
+        });
+      } else if (event is ToolExecutionEvent) {
+        // 显示执行信息
+        setState(() {
+          _chatItems.add(_ChatItem(
+            type: _ChatItemType.toolExecution,
+            content: 'Session created with ${event.toolsCalled.length} tools executed',
+            metadata: {
+              'session_id': event.sessionId,
+              'Codespace_path': event.CodespacePath,
+            },
+          ));
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tool Chat Example'),
+        actions: [
+          // 流式开关
+          Row(
+            children: [
+              const Text('Stream'),
+              Switch(
+                value: _useStreaming,
+                onChanged: (value) {
+                  setState(() {
+                    _useStreaming = value;
+                  });
+                },
+              ),
+            ],
+          ),
+          // 清除按钮
+          IconButton(
+            icon: const Icon(Icons.clear_all),
+            onPressed: () {
+              setState(() {
+                _chatItems.clear();
+              });
+              _chatService.resetSession();
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // 提示信息
+          Container(
+            padding: const EdgeInsets.all(8),
+            color: Colors.blue[50],
+            child: const Text(
+              'Try commands like: "Create a file named test.txt with content Hello World"',
+              style: TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          // 聊天内容
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _chatItems.length,
+              itemBuilder: (context, index) {
+                return _buildChatItem(_chatItems[index]);
+              },
+            ),
+          ),
+          // 输入区域
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message...',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.send),
+                  onPressed: _isLoading ? null : _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatItem(_ChatItem item) {
+    switch (item.type) {
+      case _ChatItemType.userMessage:
+        return Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              item.content,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      
+      case _ChatItemType.assistantMessage:
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(item.content),
+          ),
+        );
+      
+      case _ChatItemType.toolCall:
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.orange[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.build, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                item.content,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        );
+      
+      case _ChatItemType.toolResult:
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.green[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.content,
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      
+      case _ChatItemType.toolExecution:
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.purple[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.content,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              if (item.metadata != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Session: ${item.metadata!['session_id']}',
+                  style: const TextStyle(fontSize: 10),
+                ),
+                Text(
+                  'Path: ${item.metadata!['Codespace_path']}',
+                  style: const TextStyle(fontSize: 10),
+                ),
+              ],
+            ],
+          ),
+        );
+      
+      case _ChatItemType.error:
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.red[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.error, size: 16, color: Colors.red),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.content,
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+}
+
+enum _ChatItemType {
+  userMessage,
+  assistantMessage,
+  toolCall,
+  toolResult,
+  toolExecution,
+  error,
+}
+
+class _ChatItem {
+  final _ChatItemType type;
+  String content;
+  final Map<String, dynamic>? metadata;
+
+  _ChatItem({
+    required this.type,
+    required this.content,
+    this.metadata,
+  });
+}

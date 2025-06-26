@@ -221,7 +221,7 @@ class _MCPServiceListScreenState extends State<MCPServiceListScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(dialogContext);
-              await mcpService.cleanupOldWorkspaces();
+              await mcpService.cleanupOldCodespaces();
               if (mounted) {
                 ScaffoldMessenger.of(scaffoldContext).showSnackBar(
                   const SnackBar(content: Text('工作空间清理完成')),

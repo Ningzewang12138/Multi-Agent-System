@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\Workspace\Python_Workspace\AIagent-dev\MAS"
+VIRTUAL_ENV="D:\Codespace\Python_Codespace\AIagent-dev\MAS"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

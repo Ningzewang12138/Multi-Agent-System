@@ -4,18 +4,18 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import '../../services/mcp/mcp_service.dart';
 
-class MCPWorkspaceScreen extends StatefulWidget {
+class MCPCodespaceScreen extends StatefulWidget {
   final String sessionId;
 
-  const MCPWorkspaceScreen({Key? key, required this.sessionId})
+  const MCPCodespaceScreen({Key? key, required this.sessionId})
       : super(key: key);
 
   @override
-  State<MCPWorkspaceScreen> createState() => _MCPWorkspaceScreenState();
+  State<MCPCodespaceScreen> createState() => _MCPCodespaceScreenState();
 }
 
-class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
-  List<WorkspaceFileInfo> _files = [];
+class _MCPCodespaceScreenState extends State<MCPCodespaceScreen> {
+  List<CodespaceFileInfo> _files = [];
   bool _isLoading = false;
   String? _error;
 
@@ -33,7 +33,7 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
 
     try {
       final mcpService = context.read<MCPService>();
-      final files = await mcpService.listWorkspaceFiles(widget.sessionId);
+      final files = await mcpService.listCodespaceFiles(widget.sessionId);
       
       setState(() {
         _files = files;
@@ -172,7 +172,7 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
     );
   }
 
-  Widget _buildFileCard(WorkspaceFileInfo file) {
+  Widget _buildFileCard(CodespaceFileInfo file) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -245,7 +245,7 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
 
   Future<void> _viewFile(String filename) async {
     final mcpService = context.read<MCPService>();
-    final fileData = await mcpService.downloadWorkspaceFile(
+    final fileData = await mcpService.downloadCodespaceFile(
       widget.sessionId,
       filename,
     );
@@ -347,7 +347,7 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
         
         if (file.bytes != null) {
           final mcpService = context.read<MCPService>();
-          final success = await mcpService.uploadFileToWorkspace(
+          final success = await mcpService.uploadFileToCodespace(
             widget.sessionId,
             file.name,
             file.bytes!,
@@ -396,7 +396,7 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
-              await _deleteWorkspace();
+              await _deleteCodespace();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -408,9 +408,9 @@ class _MCPWorkspaceScreenState extends State<MCPWorkspaceScreen> {
     );
   }
 
-  Future<void> _deleteWorkspace() async {
+  Future<void> _deleteCodespace() async {
     final mcpService = context.read<MCPService>();
-    final success = await mcpService.deleteWorkspace(widget.sessionId);
+    final success = await mcpService.deleteCodespace(widget.sessionId);
 
     if (mounted) {
       if (success) {

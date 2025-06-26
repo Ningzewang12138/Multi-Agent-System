@@ -7,9 +7,11 @@ Baymin 是一个基于服务器-客户端架构的智能AI服务系统，支持�
 - **多Agent架构**：支持多个AI模型协同工作
 - **知识库管理**：完整的文档上传、管理和检索功能
 - **RAG支持**：基于知识库的智能问答
+- **MCP工具集成**：支持文件操作、数据处理等多种工具调用
 - **跨平台客户端**：使用Flutter开发，支持Windows、macOS、Linux、iOS和Android
 - **设备隔离**：每个设备的草稿知识库相互隔离，保护隐私
 - **智能同步**：支持知识库在多设备间同步共享
+- **P2P聊天**：设备间直接通信功能
 
 ## 🚀 快速开始
 
@@ -69,7 +71,8 @@ MAS/
 ├── server/              # 服务器端代码
 │   ├── api/            # API路由
 │   ├── services/       # 业务逻辑
-│   └── models/         # 数据模型
+│   ├── models/         # 数据模型
+│   └── mcp/            # MCP工具集成
 ├── masgui/             # Flutter客户端
 │   ├── lib/            # Dart源代码
 │   ├── android/        # Android平台配置
@@ -81,6 +84,7 @@ MAS/
 │   ├── fix_project.py  # 项目修复工具
 │   └── project_cleanup.py # 清理维护工具
 ├── docs/               # 文档
+│   └── mcp_tools_guide.md  # MCP工具使用指南
 └── requirements.txt    # Python依赖
 
 ```
@@ -102,6 +106,7 @@ python tests/integrated_test_suite.py --quick
 python tests/integrated_test_suite.py --rag      # RAG功能
 python tests/integrated_test_suite.py --knowledge # 知识库功能
 python tests/integrated_test_suite.py --api      # API端点
+python test_mcp_functionality.py                 # MCP工具功能
 ```
 
 性能测试：
@@ -146,7 +151,16 @@ python scripts/fix_project.py
 - `GET /api/knowledge/{kb_id}/documents` - 列出文档
 
 ### RAG查询
-- `POST /api/rag/query` - 执行RAG查询
+- `POST /api/chat/rag/completions` - 执行RAG增强聊天
+
+### MCP工具
+- `GET /api/mcp/services` - 获取MCP服务列表
+- `GET /api/mcp/tools` - 获取可用工具列表
+- `POST /api/mcp/execute` - 执行MCP工具
+
+### P2P功能
+- `GET /api/p2p/peers` - 获取在线设备列表
+- `POST /api/p2p/chat/send` - 发送P2P消息
 
 详细API文档请参考 [docs/api/](docs/api/)
 

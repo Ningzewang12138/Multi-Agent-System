@@ -18,7 +18,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F6768516-B6E1-3367-B35D-3FD6B4354A45}</ProjectGuid>
+    <ProjectGuid>{7D72683B-094B-3450-8D60-4D6019DC9D89}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
@@ -100,7 +100,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\74d67e77f8c1c3ce5d366896e967e6fd\INSTALL_force.rule">
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\CMakeFiles\387464e24fe00d0cccf6f05cdb9caf52\INSTALL_force.rule">
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BuildInParallel>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"> </Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
@@ -113,7 +113,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</VerifyInputsAndOutputsExist>
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">true</BuildInParallel>
@@ -128,7 +128,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">false</VerifyInputsAndOutputsExist>
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</BuildInParallel>
@@ -143,21 +143,21 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\CMakeFiles\INSTALL_force</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
       <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</VerifyInputsAndOutputsExist>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\ZERO_CHECK.vcxproj">
-      <Project>{2074D5A5-088C-3704-A1AE-C73BFD682815}</Project>
+    <ProjectReference Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\ZERO_CHECK.vcxproj">
+      <Project>{B063329A-044D-3276-BD7C-2CFA29E8110C}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\ALL_BUILD.vcxproj">
-      <Project>{A8CF6617-C4FA-3EE8-B67A-3B1445ED9A57}</Project>
+    <ProjectReference Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\plugins\flutter_tts\ALL_BUILD.vcxproj">
+      <Project>{370598F2-9BF1-326B-BD70-237F96FD6E19}</Project>
       <Name>ALL_BUILD</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

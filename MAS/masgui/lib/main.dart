@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import 'package:masgui/l10n/gen/app_localizations.dart';
-
+import 'screens/p2p/p2p_chat_list_screen.dart';
 import 'screen_settings.dart';
 import 'screen_voice.dart';
 // import 'screen_welcome.dart';  // 不再需要欢迎屏幕
@@ -21,8 +21,8 @@ import 'screens/sync/knowledge_sync_screen.dart';
 import 'services/multi_agent_service.dart';
 import 'services/sync/device_discovery_service.dart';
 import 'services/sync/simple_device_broadcast_service.dart';
-import 'screens/mcp/mcp_service_list_screen.dart';
-import 'services/mcp/mcp_service.dart';
+//import 'screens/mcp/mcp_service_list_screen.dart';
+//import 'services/mcp/mcp_service.dart';
 import 'config/app_config.dart';
 import 'config/icon_sizes.dart';
 import 'config/logo_animation_config.dart';
@@ -247,7 +247,7 @@ class _MainAppState extends State<MainApp> {
   final SimpleDeviceBroadcastService _broadcastService =
       SimpleDeviceBroadcastService();
   double chatLogoSize = 1.0; // 聊天界面logo动画大小
-  MCPService? _mcpService;
+  //MCPService? _mcpService;
 
   List<Widget> sidebar(
       BuildContext context, void Function(void Function()) setState) {
@@ -328,10 +328,10 @@ class _MainAppState extends State<MainApp> {
         items.add(const SizedBox(height: 20));
       }
 
-      items.add(const Divider());
+      //items.add(const Divider());
 
       // 调试信息 - 在所有平台显示
-      items.add(
+      /*items.add(
         ListTile(
           leading: Icon(Icons.bug_report, size: IconSizes.sidebarIcon),
           title: const Text('Debug Info'),
@@ -403,10 +403,10 @@ class _MainAppState extends State<MainApp> {
             );
           },
         ),
-      );
+      );*/
 
       // 多Agent模式下的功能
-      if (AppModeManager.isMultiAgentMode) {
+      /*if (AppModeManager.isMultiAgentMode) {
         // 知识库管理
         items.add(
           ListTile(
@@ -489,7 +489,7 @@ class _MainAppState extends State<MainApp> {
         );
 
         items.add(const Divider());
-      }
+      }*/
 
       // 模式选择按钮
       items.add(
@@ -671,7 +671,7 @@ class _MainAppState extends State<MainApp> {
             print('Error loading synced KBs: $e');
           });
 
-          // 初始化MCP服务
+          /*// 初始化MCP服务
           print(
               'Initializing MCP service with URL: ${AppConfig.multiAgentServer}');
           try {
@@ -682,7 +682,7 @@ class _MainAppState extends State<MainApp> {
             print('MCP service initialized successfully');
           } catch (e) {
             print('Failed to initialize MCP service: $e');
-          }
+          }*/
 
           // 初始化设备发现服务
           _deviceService.initialize();
@@ -933,19 +933,7 @@ class _MainAppState extends State<MainApp> {
                                 },
                                 child: Text('Test Connection'),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  // 打开同步管理界面
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const KnowledgeSyncScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Text('Open Sync Manager'),
-                              ),
+                              
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 child: Text('Close'),
@@ -976,8 +964,24 @@ class _MainAppState extends State<MainApp> {
                         },
                       ),
                     ),
-                  // MCP服务按钮 - 在移动端和桌面端都显示
+                    // P2P聊天按钮
                   if (AppModeManager.isMultiAgentMode)
+                    IconButton(
+                      icon: Icon(
+                        Icons.chat,
+                        size: IconSizes.appBarAction,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const P2PChatListScreen(),
+                          ),
+                        );
+                      },
+                      tooltip: 'P2P Chat',
+                    ),
+                  // MCP服务按钮 - 在移动端和桌面端都显示
+                  /*if (AppModeManager.isMultiAgentMode)
                     IconButton(
                       icon: Icon(
                         Icons.extension,
@@ -1087,9 +1091,9 @@ class _MainAppState extends State<MainApp> {
                             }
                             return;
                           }
-                        }
+                        }*/
 
-                        if (_mcpService != null) {
+                        /*if (_mcpService != null) {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) =>
@@ -1102,7 +1106,7 @@ class _MainAppState extends State<MainApp> {
                         }
                       },
                       tooltip: 'MCP Services',
-                    ),
+                    ),*/     
                   ...?desktopControlsActions(context, [])
                 ],
                 bottom: PreferredSize(
@@ -2136,6 +2140,19 @@ class _MainAppState extends State<MainApp> {
             },
             child: const Text('Manage Knowledge Bases'),
           ),
+          TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // 打开同步管理界面
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const KnowledgeSyncScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text('Open Sync Manager'),
+                              ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),

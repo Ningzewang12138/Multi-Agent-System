@@ -176,18 +176,6 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "fetch_api",
-      "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/fetch_api-2.3.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "fetch_client",
-      "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/fetch_client-1.1.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.3"
-    },
-    {
       "name": "ffi",
       "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/ffi-2.1.4",
       "packageUri": "lib/",
@@ -531,9 +519,9 @@
     },
     {
       "name": "ollama_dart",
-      "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/ollama_dart-0.2.2+1",
+      "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/ollama_dart-0.2.3",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.6"
     },
     {
       "name": "package_info_plus",
@@ -972,6 +960,12 @@
       "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/web-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "web_socket_channel",
+      "rootUri": "file:///C:/Users/alex/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/web_socket_channel-2.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
     },
     {
       "name": "win32",

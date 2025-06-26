@@ -39,14 +39,14 @@ def test_list_tools(category: str = None):
     print_response(response, f"MCP Tools List (category: {category or 'all'})")
     return response.json()
 
-def test_create_workspace(device_id: str):
+def test_create_Codespace(device_id: str):
     """测试创建工作空间"""
-    print("\n📁 Testing Create Workspace...")
+    print("\n📁 Testing Create Codespace...")
     data = {
         "device_id": device_id
     }
-    response = requests.post(f"{BASE_URL}/workspace/create", json=data)
-    print_response(response, "Create Workspace")
+    response = requests.post(f"{BASE_URL}/Codespace/create", json=data)
+    print_response(response, "Create Codespace")
     return response.json()
 
 def test_execute_tool(tool_name: str, parameters: Dict[str, Any], device_id: str, session_id: str = None):
@@ -64,17 +64,17 @@ def test_execute_tool(tool_name: str, parameters: Dict[str, Any], device_id: str
     print_response(response, f"Execute Tool: {tool_name}")
     return response.json()
 
-def test_list_workspace_files(session_id: str):
+def test_list_Codespace_files(session_id: str):
     """测试列出工作空间文件"""
-    print(f"\n📋 Testing List Workspace Files...")
-    response = requests.get(f"{BASE_URL}/workspace/{session_id}/files")
-    print_response(response, "List Workspace Files")
+    print(f"\n📋 Testing List Codespace Files...")
+    response = requests.get(f"{BASE_URL}/Codespace/{session_id}/files")
+    print_response(response, "List Codespace Files")
     return response.json()
 
 def test_download_file(session_id: str, filename: str):
     """测试下载工作空间文件"""
     print(f"\n📥 Testing Download File: {filename}...")
-    response = requests.get(f"{BASE_URL}/workspace/{session_id}/file/{filename}")
+    response = requests.get(f"{BASE_URL}/Codespace/{session_id}/file/{filename}")
     print_response(response, f"Download File: {filename}")
     return response.json()
 
@@ -97,15 +97,15 @@ def main():
         filesystem_tools = test_list_tools("filesystem")
         
         # 4. 创建工作空间
-        workspace_info = test_create_workspace(test_device_id)
-        session_id = workspace_info["session_id"]
-        print(f"✅ Created workspace with session_id: {session_id}")
+        Codespace_info = test_create_Codespace(test_device_id)
+        session_id = Codespace_info["session_id"]
+        print(f"✅ Created Codespace with session_id: {session_id}")
         
         # 5. 测试文件写入工具
         write_result = test_execute_tool(
             tool_name="write_file",
             parameters={
-                "path": "@workspace/test_output.txt",
+                "path": "@Codespace/test_output.txt",
                 "content": "Hello from MCP!\n这是一个测试文件。\n当前时间: " + time.strftime("%Y-%m-%d %H:%M:%S")
             },
             device_id=test_device_id,
@@ -169,7 +169,7 @@ Charlie,35,Guangzhou"""
                 "from_format": "json",
                 "to_format": "yaml",
                 "options": {
-                    "save_to_workspace": True,
+                    "save_to_Codespace": True,
                     "filename": "converted_data.yaml"
                 }
             },
@@ -178,7 +178,7 @@ Charlie,35,Guangzhou"""
         )
         
         # 10. 列出工作空间文件
-        files = test_list_workspace_files(session_id)
+        files = test_list_Codespace_files(session_id)
         
         # 11. 下载一个文件
         if files and len(files) > 0:
@@ -201,8 +201,8 @@ Charlie,35,Guangzhou"""
         
         # 清理提示
         if input("\n是否删除测试工作空间？(y/n): ").lower() == 'y':
-            response = requests.delete(f"{BASE_URL}/workspace/{session_id}")
-            print_response(response, "Delete Workspace")
+            response = requests.delete(f"{BASE_URL}/Codespace/{session_id}")
+            print_response(response, "Delete Codespace")
         
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")

@@ -51,7 +51,8 @@
         "uuid",
         "version",
         "visibility_detector",
-        "volume_controller"
+        "volume_controller",
+        "web_socket_channel"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -91,6 +92,15 @@
         "test_api",
         "vector_math",
         "vm_service"
+      ]
+    },
+    {
+      "name": "web_socket_channel",
+      "version": "2.4.0",
+      "dependencies": [
+        "async",
+        "crypto",
+        "stream_channel"
       ]
     },
     {
@@ -533,9 +543,8 @@
     },
     {
       "name": "ollama_dart",
-      "version": "0.2.2+1",
+      "version": "0.2.3",
       "dependencies": [
-        "fetch_client",
         "freezed_annotation",
         "http",
         "json_annotation",
@@ -725,6 +734,13 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "crypto",
+      "version": "3.0.6",
+      "dependencies": [
+        "typed_data"
       ]
     },
     {
@@ -1252,13 +1268,6 @@
       ]
     },
     {
-      "name": "crypto",
-      "version": "3.0.6",
-      "dependencies": [
-        "typed_data"
-      ]
-    },
-    {
       "name": "image_picker_windows",
       "version": "0.2.1+1",
       "dependencies": [
@@ -1454,14 +1463,6 @@
       ]
     },
     {
-      "name": "fetch_client",
-      "version": "1.1.4",
-      "dependencies": [
-        "fetch_api",
-        "http"
-      ]
-    },
-    {
       "name": "sky_engine",
       "version": "0.0.0",
       "dependencies": []
@@ -1505,13 +1506,6 @@
       "dependencies": [
         "flutter",
         "linkify"
-      ]
-    },
-    {
-      "name": "fetch_api",
-      "version": "2.3.1",
-      "dependencies": [
-        "web"
       ]
     },
     {

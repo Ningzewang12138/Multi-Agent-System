@@ -21,7 +21,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A8CF6617-C4FA-3EE8-B67A-3B1445ED9A57}</ProjectGuid>
+    <ProjectGuid>{370598F2-9BF1-326B-BD70-237F96FD6E19}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
@@ -88,11 +88,11 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\runner\CMakeLists.txt">
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\runner\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows -BD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows -BD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -101,11 +101,11 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Building Custom Rule D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Building Custom Rule D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows -BD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows -BD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -114,11 +114,11 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows/runner/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/windows -BD:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Workspace/Python_Workspace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/windows -BD:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64 --check-stamp-file D:/Codespace/Python_Codespace/AIagent-dev/MAS/masgui/build/windows/x64/runner/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -127,7 +127,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\runner\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
@@ -135,14 +135,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\ZERO_CHECK.vcxproj">
-      <Project>{2074D5A5-088C-3704-A1AE-C73BFD682815}</Project>
+    <ProjectReference Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\ZERO_CHECK.vcxproj">
+      <Project>{B063329A-044D-3276-BD7C-2CFA29E8110C}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\build\windows\x64\runner\Baymin.vcxproj">
-      <Project>{EFFCB2B4-F320-3B69-A1E2-BCAE95AB9B05}</Project>
+    <ProjectReference Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\build\windows\x64\runner\Baymin.vcxproj">
+      <Project>{92D63CD2-CB38-3088-80C2-1807707F1C41}</Project>
       <Name>Baymin</Name>
     </ProjectReference>
   </ItemGroup>

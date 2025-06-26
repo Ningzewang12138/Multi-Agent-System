@@ -16,7 +16,7 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
-class MCPWorkspaceService:
+class MCPCodespaceService:
     """MCP 工作空间管理服务"""
     
     def __init__(self, base_dir: Optional[str] = None):
@@ -29,15 +29,15 @@ class MCPWorkspaceService:
         if base_dir:
             self.base_dir = Path(base_dir)
         else:
-            # 使用项目根目录下的 mcp_workspaces
+            # 使用项目根目录下的 mcp_Codespaces
             current_dir = Path(__file__).parent.parent
-            self.base_dir = current_dir / "mcp_workspaces"
+            self.base_dir = current_dir / "mcp_Codespaces"
         
         # 创建基础目录
         self.base_dir.mkdir(parents=True, exist_ok=True)
         
-        # 工作空间映射: session_id -> workspace_path
-        self._workspaces: Dict[str, Path] = {}
+        # 工作空间映射: session_id -> Codespace_path
+        self._Codespaces: Dict[str, Path] = {}
         
         # 清理任务相关
         self._cleanup_task = None
@@ -46,9 +46,9 @@ class MCPWorkspaceService:
         # 启动清理任务
         self._start_cleanup_task()
         
-        logger.info(f"MCP Workspace Service initialized with base dir: {self.base_dir}")
+        logger.info(f"MCP Codespace Service initialized with base dir: {self.base_dir}")
     
-    def create_workspace(self, device_id: str, session_id: Optional[str] = None) -> tuple[str, Path]:
+    def create_Codespace(self, device_id: str, session_id: Optional[str] = None) -> tuple[str, Path]:
         """
         为设备创建临时工作空间
         
@@ -57,15 +57,15 @@ class MCPWorkspaceService:
             session_id: 会话ID，如果不提供则自动生成
             
         Returns:
-            (session_id, workspace_path)
+            (session_id, Codespace_path)
         """
         # 生成会话ID
         if not session_id:
             session_id = f"{device_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
         
         # 创建工作空间目录
-        workspace_path = self.base_dir / device_id / session_id
-        workspace_path.mkdir(parents=True, exist_ok=True)
+        Codespace_path = self.base_dir / device_id / session_id
+        Codespace_path.mkdir(parents=True, exist_ok=True)
         
         # 创建元数据文件
         metadata = {
@@ -76,33 +76,33 @@ class MCPWorkspaceService:
             "status": "active"
         }
         
-        metadata_file = workspace_path / ".metadata.json"
+        metadata_file = Codespace_path / ".metadata.json"
         with open(metadata_file, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=2)
         
         # 记录工作空间
-        self._workspaces[session_id] = workspace_path
+        self._Codespaces[session_id] = Codespace_path
         
-        logger.info(f"Created workspace for device {device_id}: {workspace_path}")
-        return session_id, workspace_path
+        logger.info(f"Created Codespace for device {device_id}: {Codespace_path}")
+        return session_id, Codespace_path
     
-    def get_workspace(self, session_id: str) -> Optional[Path]:
+    def get_Codespace(self, session_id: str) -> Optional[Path]:
         """获取工作空间路径"""
-        workspace = self._workspaces.get(session_id)
-        if workspace and workspace.exists():
+        Codespace = self._Codespaces.get(session_id)
+        if Codespace and Codespace.exists():
             # 更新最后访问时间
-            self._update_last_accessed(workspace)
-            return workspace
+            self._update_last_accessed(Codespace)
+            return Codespace
         return None
     
-    def list_workspaces(self, device_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_Codespaces(self, device_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         列出工作空间
         
         Args:
             device_id: 如果指定，只列出该设备的工作空间
         """
-        workspaces = []
+        Codespaces = []
         
         # 扫描目录
         if device_id:
@@ -131,13 +131,13 @@ class MCPWorkspaceService:
                             metadata["total_size"] = sum(f.stat().st_size for f in files if f.is_file())
                             metadata["path"] = str(session_dir)
                             
-                            workspaces.append(metadata)
+                            Codespaces.append(metadata)
                         except Exception as e:
                             logger.error(f"Error reading metadata for {session_dir}: {e}")
         
-        return workspaces
+        return Codespaces
     
-    def save_file_to_workspace(self, session_id: str, filename: str, content: bytes) -> Optional[Path]:
+    def save_file_to_Codespace(self, session_id: str, filename: str, content: bytes) -> Optional[Path]:
         """
         保存文件到工作空间
         
@@ -149,48 +149,48 @@ class MCPWorkspaceService:
         Returns:
             文件路径
         """
-        workspace = self.get_workspace(session_id)
-        if not workspace:
-            logger.error(f"Workspace not found: {session_id}")
+        Codespace = self.get_Codespace(session_id)
+        if not Codespace:
+            logger.error(f"Codespace not found: {session_id}")
             return None
         
-        file_path = workspace / filename
+        file_path = Codespace / filename
         
         # 确保文件名安全
-        file_path = workspace / Path(filename).name
+        file_path = Codespace / Path(filename).name
         
         # 写入文件
         with open(file_path, 'wb') as f:
             f.write(content)
         
-        logger.info(f"Saved file {filename} to workspace {session_id}")
+        logger.info(f"Saved file {filename} to Codespace {session_id}")
         return file_path
     
-    def save_text_to_workspace(self, session_id: str, filename: str, content: str, encoding: str = 'utf-8') -> Optional[Path]:
+    def save_text_to_Codespace(self, session_id: str, filename: str, content: str, encoding: str = 'utf-8') -> Optional[Path]:
         """保存文本文件到工作空间"""
-        return self.save_file_to_workspace(session_id, filename, content.encode(encoding))
+        return self.save_file_to_Codespace(session_id, filename, content.encode(encoding))
     
-    def read_file_from_workspace(self, session_id: str, filename: str) -> Optional[bytes]:
+    def read_file_from_Codespace(self, session_id: str, filename: str) -> Optional[bytes]:
         """从工作空间读取文件"""
-        workspace = self.get_workspace(session_id)
-        if not workspace:
+        Codespace = self.get_Codespace(session_id)
+        if not Codespace:
             return None
         
-        file_path = workspace / filename
+        file_path = Codespace / filename
         if not file_path.exists():
             return None
         
         with open(file_path, 'rb') as f:
             return f.read()
     
-    def list_files_in_workspace(self, session_id: str) -> List[Dict[str, Any]]:
+    def list_files_in_Codespace(self, session_id: str) -> List[Dict[str, Any]]:
         """列出工作空间中的文件"""
-        workspace = self.get_workspace(session_id)
-        if not workspace:
+        Codespace = self.get_Codespace(session_id)
+        if not Codespace:
             return []
         
         files = []
-        for file_path in workspace.iterdir():
+        for file_path in Codespace.iterdir():
             if file_path.name == ".metadata.json":
                 continue
             
@@ -204,21 +204,21 @@ class MCPWorkspaceService:
         
         return files
     
-    def delete_workspace(self, session_id: str) -> bool:
+    def delete_Codespace(self, session_id: str) -> bool:
         """删除工作空间"""
-        workspace = self._workspaces.get(session_id)
-        if workspace and workspace.exists():
+        Codespace = self._Codespaces.get(session_id)
+        if Codespace and Codespace.exists():
             try:
-                shutil.rmtree(workspace)
-                del self._workspaces[session_id]
-                logger.info(f"Deleted workspace: {session_id}")
+                shutil.rmtree(Codespace)
+                del self._Codespaces[session_id]
+                logger.info(f"Deleted Codespace: {session_id}")
                 return True
             except Exception as e:
-                logger.error(f"Error deleting workspace {session_id}: {e}")
+                logger.error(f"Error deleting Codespace {session_id}: {e}")
                 return False
         return False
     
-    def cleanup_old_workspaces(self, max_age_hours: int = 24):
+    def cleanup_old_Codespaces(self, max_age_hours: int = 24):
         """清理超过指定时间的工作空间"""
         cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
         cleaned_count = 0
@@ -242,20 +242,20 @@ class MCPWorkspaceService:
                         if last_accessed < cutoff_time:
                             shutil.rmtree(session_dir)
                             cleaned_count += 1
-                            logger.info(f"Cleaned up old workspace: {session_dir}")
+                            logger.info(f"Cleaned up old Codespace: {session_dir}")
                     except Exception as e:
-                        logger.error(f"Error processing workspace {session_dir}: {e}")
+                        logger.error(f"Error processing Codespace {session_dir}: {e}")
             
             # 删除空的设备目录
             if not list(device_dir.iterdir()):
                 device_dir.rmdir()
         
-        logger.info(f"Cleaned up {cleaned_count} old workspaces")
+        logger.info(f"Cleaned up {cleaned_count} old Codespaces")
         return cleaned_count
     
-    def _update_last_accessed(self, workspace: Path):
+    def _update_last_accessed(self, Codespace: Path):
         """更新最后访问时间"""
-        metadata_file = workspace / ".metadata.json"
+        metadata_file = Codespace / ".metadata.json"
         if metadata_file.exists():
             try:
                 with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -282,7 +282,7 @@ class MCPWorkspaceService:
                         await asyncio.sleep(10)
                     
                     if self._cleanup_running:  # 再次检查，避免在关闭时执行
-                        self.cleanup_old_workspaces()
+                        self.cleanup_old_Codespaces()
                 except asyncio.CancelledError:
                     logger.info("Cleanup task cancelled")
                     break
@@ -313,14 +313,14 @@ class MCPWorkspaceService:
             except Exception as e:
                 logger.error(f"Error stopping cleanup task: {e}")
         
-        logger.info("MCP Workspace Service stopped")
+        logger.info("MCP Codespace Service stopped")
 
 
 # 全局工作空间服务实例
-workspace_service = MCPWorkspaceService()
+Codespace_service = MCPCodespaceService()
 
 
-def start_workspace_service():
+def start_Codespace_service():
     """在事件循环可用后启动工作空间服务"""
-    if workspace_service._cleanup_task is None:
-        workspace_service._start_cleanup_task()
+    if Codespace_service._cleanup_task is None:
+        Codespace_service._start_cleanup_task()

@@ -8,7 +8,7 @@ from typing import Optional
 router = APIRouter()
 
 # 直接使用绝对路径
-template_dir = r"D:\Workspace\Python_Workspace\AIagent-dev\MAS\templates"
+template_dir = r"D:\Codespace\Python_Codespace\AIagent-dev\MAS\templates"
 
 # 如果不存在，尝试相对路径
 if not os.path.exists(template_dir):

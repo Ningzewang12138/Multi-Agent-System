@@ -180,13 +180,13 @@ class ToolExecution {
   final bool executed;
   final List<String> toolsCalled;
   final String sessionId;
-  final String workspacePath;
+  final String CodespacePath;
   
   ToolExecution({
     required this.executed,
     required this.toolsCalled,
     required this.sessionId,
-    required this.workspacePath,
+    required this.CodespacePath,
   });
   
   factory ToolExecution.fromJson(Map<String, dynamic> json) {
@@ -194,27 +194,27 @@ class ToolExecution {
       executed: json['executed'],
       toolsCalled: List<String>.from(json['tools_called']),
       sessionId: json['session_id'],
-      workspacePath: json['workspace_path'],
+      CodespacePath: json['Codespace_path'],
     );
   }
 }
 
 /// 工作空间文件
-class WorkspaceFile {
+class CodespaceFile {
   final String name;
   final int size;
   final String modified;
   final bool isDirectory;
   
-  WorkspaceFile({
+  CodespaceFile({
     required this.name,
     required this.size,
     required this.modified,
     required this.isDirectory,
   });
   
-  factory WorkspaceFile.fromJson(Map<String, dynamic> json) {
-    return WorkspaceFile(
+  factory CodespaceFile.fromJson(Map<String, dynamic> json) {
+    return CodespaceFile(
       name: json['name'],
       size: json['size'],
       modified: json['modified'],

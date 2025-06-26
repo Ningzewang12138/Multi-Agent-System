@@ -216,7 +216,7 @@ class ToolEnhancedChatService {
                   executed: event['data']['executed'],
                   toolsCalled: List<String>.from(event['data']['tools_called']),
                   sessionId: event['data']['session_id'],
-                  workspacePath: event['data']['workspace_path'],
+                  CodespacePath: event['data']['Codespace_path'],
                 );
               } else if (event['type'] == 'done') {
                 yield DoneEvent(event['finish_reason']);
@@ -234,39 +234,39 @@ class ToolEnhancedChatService {
   }
   
   /// 获取工作空间文件列表
-  Future<List<WorkspaceFile>> getWorkspaceFiles() async {
+  Future<List<CodespaceFile>> getCodespaceFiles() async {
     if (_sessionId == null) {
       return [];
     }
     
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/mcp/workspace/$_sessionId/files'),
+        Uri.parse('$baseUrl/api/mcp/Codespace/$_sessionId/files'),
       );
       
       if (response.statusCode == 200) {
         final List<dynamic> filesJson = json.decode(response.body);
-        return filesJson.map((json) => WorkspaceFile.fromJson(json)).toList();
+        return filesJson.map((json) => CodespaceFile.fromJson(json)).toList();
       } else if (response.statusCode == 404) {
         return [];
       } else {
-        throw Exception('Failed to get workspace files: ${response.statusCode}');
+        throw Exception('Failed to get Codespace files: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error getting workspace files: $e');
+      print('Error getting Codespace files: $e');
       return [];
     }
   }
   
   /// 下载工作空间文件
-  Future<String> downloadWorkspaceFile(String filename) async {
+  Future<String> downloadCodespaceFile(String filename) async {
     if (_sessionId == null) {
       throw Exception('No active session');
     }
     
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/mcp/workspace/$_sessionId/file/$filename'),
+        Uri.parse('$baseUrl/api/mcp/Codespace/$_sessionId/file/$filename'),
       );
       
       if (response.statusCode == 200) {
@@ -319,13 +319,13 @@ class ToolExecutionEvent extends ChatStreamEvent {
   final bool executed;
   final List<String> toolsCalled;
   final String sessionId;
-  final String workspacePath;
+  final String CodespacePath;
   
   ToolExecutionEvent({
     required this.executed,
     required this.toolsCalled,
     required this.sessionId,
-    required this.workspacePath,
+    required this.CodespacePath,
   });
 }
 

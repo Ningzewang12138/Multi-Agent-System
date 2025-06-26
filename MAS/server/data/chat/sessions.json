@@ -1,0 +1,24 @@
+[
+  {
+    "session_id": "11f9827e-7e87-4f71-9e63-2f36d3bb2236",
+    "device1_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "device2_id": "6bec80b2-79ab-4817-ac11-f3bacf297daf",
+    "created_at": "2025-06-16T23:17:48.117930",
+    "last_message_at": "2025-06-16T23:18:50.906064",
+    "unread_count": {
+      "17650f20-69eb-4f94-9dff-0286c7660eca": 0,
+      "6bec80b2-79ab-4817-ac11-f3bacf297daf": 0
+    }
+  },
+  {
+    "session_id": "f4432dc3-d4ec-46ec-bf1a-9fd526895f69",
+    "device1_id": "17650f20-69eb-4f94-9dff-0286c7660eca",
+    "device2_id": "2dce1924-3b2d-4c7b-ae31-cbab06724a60",
+    "created_at": "2025-06-22T01:10:12.648189",
+    "last_message_at": "2025-06-22T01:16:07.659365",
+    "unread_count": {
+      "17650f20-69eb-4f94-9dff-0286c7660eca": 0,
+      "2dce1924-3b2d-4c7b-ae31-cbab06724a60": 0
+    }
+  }
+]

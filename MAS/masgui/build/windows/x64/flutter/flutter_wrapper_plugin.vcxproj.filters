@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
+    <ClCompile Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\Workspace\Python_Workspace\AIagent-dev\MAS\masgui\windows\flutter\CMakeLists.txt" />
+    <CustomBuild Include="D:\Codespace\Python_Codespace\AIagent-dev\MAS\masgui\windows\flutter\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{B83909BC-080A-3738-AF87-B61B03C4697B}</UniqueIdentifier>
+      <UniqueIdentifier>{76322980-8B5F-3C34-8132-C087AA6136E9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{E51B7B5E-00E2-3ACA-BF3F-323E35731188}</UniqueIdentifier>
+      <UniqueIdentifier>{6F942634-28CF-33DC-A100-4EAD49C3807D}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

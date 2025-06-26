@@ -22,14 +22,14 @@ sys.path.insert(0, parent_dir)
 sys.path.insert(0, current_dir)  # 添加server目录到路径
 
 # 现在使用绝对导入
-from server.api.routes import chat, knowledge, system, sync, admin, web_admin, mcp, messages
+from server.api.routes import chat, knowledge, system, sync, admin, web_admin, messages, p2p_chat
 from server.services.ollama_service import OllamaService
 from server.services.vector_db_service import VectorDBService
 from server.services.document_processor import DocumentProcessor
 from server.services.device_discovery_service import discovery_service
 from server.services.knowledge_sync_service import sync_service
-from server.services.mcp_workspace_service import workspace_service, start_workspace_service
-from server.mcp.manager import mcp_manager
+#from server.services.mcp_Codespace_service import Codespace_service, start_Codespace_service
+#from server.mcp.manager import mcp_manager
 from server.services.message_storage_service import message_storage
 
 # 配置日志
@@ -132,12 +132,12 @@ async def lifespan(app: FastAPI):
     logger.info("Device discovery service started")
     
     # 启动工作空间服务的清理任务
-    start_workspace_service()
-    logger.info("Workspace service cleanup task started")
+    #start_Codespace_service()
+    #logger.info("Codespace service cleanup task started")
     
     # 初始化MCP管理器
-    mcp_manager.initialize()
-    logger.info(f"MCP manager initialized with {len(mcp_manager.get_available_tools())} tools")
+    #mcp_manager.initialize()
+    #logger.info(f"MCP manager initialized with {len(mcp_manager.get_available_tools())} tools")
     
     # 初始化消息存储（确保数据库已创建）
     logger.info("Message storage initialized")
@@ -151,7 +151,7 @@ async def lifespan(app: FastAPI):
     discovery_service.stop()
     
     # 停止工作空间服务（异步）
-    await workspace_service.stop()
+    #await Codespace_service.stop()
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -181,9 +181,9 @@ app.include_router(system.router, prefix="/api/system", tags=["System"])
 app.include_router(sync.router, prefix="/api/sync", tags=["Sync"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 app.include_router(web_admin.router, prefix="/web", tags=["Web Admin"])
-app.include_router(mcp.router, prefix="/api/mcp", tags=["MCP"])
+#app.include_router(mcp.router, prefix="/api/mcp", tags=["MCP"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
-
+app.include_router(p2p_chat.router, prefix="/api/p2p/chat", tags=["P2P Chat"])
 @app.get("/")
 async def root():
     return {
@@ -196,7 +196,8 @@ async def root():
             "embeddings": services.embedding_manager is not None and services.embedding_manager.default_service is not None,
             "device_discovery": True,
             "sync": True,
-            "mcp": True
+            "p2p_chat": True,
+            #"mcp": True
         },
         "device_info": {
             "id": discovery_service.device_id,

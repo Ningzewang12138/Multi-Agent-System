@@ -76,9 +76,9 @@ jobs:
       - name: Uploading APK
         uses: actions/upload-artifact@v4
         with:
-          name: ollama-android
+          name: Baymin-android
           path: |
-            build/app/outputs/flutter-apk/ollama-android-v${{ needs.analyze.outputs.result }}.apk
+            build/app/outputs/flutter-apk/Baymin-android-v${{ needs.analyze.outputs.result }}.apk
   build-windows-x64:
     name: Building for Windows x64
     if: ${{ github.event.inputs.buildWindowsX64 == 'true' }}
@@ -104,8 +104,8 @@ jobs:
       - name: Uploading installer
         uses: actions/upload-artifact@v4
         with:
-          name: ollama-windows-x64
-          path: build\windows\x64\runner\ollama-windows-x64-v${{ needs.analyze.outputs.result }}.exe
+          name: Baymin-windows-x64
+          path: build\windows\x64\runner\Baymin-windows-x64-v${{ needs.analyze.outputs.result }}.exe
   build-linux-x64:
     name: Building for Linux x64
     if: ${{ github.event.inputs.buildLinuxX64 == 'true' }}
@@ -130,12 +130,12 @@ jobs:
       - name: Creating archive
         run: |
           cd build/linux/x64/release/bundle
-          tar -czf ollama-linux-x64-v${{ needs.analyze.outputs.result }}.tar.gz *
+          tar -czf Baymin-linux-x64-v${{ needs.analyze.outputs.result }}.tar.gz *
       - name: Uploading archive
         uses: actions/upload-artifact@v4
         with:
-          name: ollama-linux-x64
-          path: build/linux/x64/release/bundle/ollama-linux-x64-v${{ needs.analyze.outputs.result }}.tar.gz
+          name: Baymin-linux-x64
+          path: build/linux/x64/release/bundle/Baymin-linux-x64-v${{ needs.analyze.outputs.result }}.tar.gz
   bundle:
     name: Creating bundle
     runs-on: ubuntu-latest
@@ -151,5 +151,5 @@ jobs:
       - name: Bundling files
         uses: actions/upload-artifact@v4
         with:
-          name: ollama
+          name: Baymin
           path: ./

@@ -462,7 +462,7 @@ class DataConversionTool(MCPTool):
             
             # 如果需要，保存到工作空间
             output_file = None
-            if options.get("save_to_workspace"):
+            if options.get("save_to_Codespace"):
                 filename = options.get("filename", f"converted.{to_format}")
                 output_file = {
                     "name": filename,

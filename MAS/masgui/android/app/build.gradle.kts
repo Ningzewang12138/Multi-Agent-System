@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.freakurl.apps.ollama"
+    namespace = "com.freakurl.apps.baymin"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973" // flutter.ndkVersion
 
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.freakurl.apps.ollama"
+        applicationId = "com.freakurl.apps.baymin"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
